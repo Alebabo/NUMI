@@ -171,19 +171,9 @@ export default function LandingPage() {
               <p className="mt-3 text-sm leading-7 text-gray-500">
                 Drop an audio file, paste a transcript, or speak directly to the ElevenLabs voice agent. MP3, WAV, TXT, JSON, VTT — all accepted.
               </p>
-              <div className="mt-5 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
-                  <Image src="/assets/logo-elevenlabs.png" alt="ElevenLabs" width={16} height={16} className="h-4 w-4 object-contain" />
-                  <span className="text-[11px] font-medium text-gray-500">ElevenLabs voice</span>
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
-                  <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={16} height={16} className="h-4 w-4 object-contain" />
-                  <span className="text-[11px] font-medium text-gray-500">HubSpot auto-sync</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd"/></svg>
-                  Transcript
-                </span>
+              <div className="mt-5 flex items-center gap-4">
+                <Image src="/assets/logo-elevenlabs.png" alt="ElevenLabs" width={80} height={24} className="h-5 w-auto object-contain opacity-60 grayscale" />
+                <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={80} height={24} className="h-5 w-auto object-contain opacity-60 grayscale" />
               </div>
             </div>
 
@@ -195,10 +185,7 @@ export default function LandingPage() {
                 The Anti-Sycophant Engine runs two passes — a rater and an adversarial critic — powered by Qwen on Alibaba Cloud. No praise layer. Only what the call actually shows.
               </p>
               <div className="mt-5">
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
-                  <Image src="/assets/logo-qwen.png" alt="Qwen" width={16} height={16} className="h-4 w-4 object-contain" />
-                  <span className="text-[11px] font-medium text-gray-500">Qwen · Alibaba Cloud</span>
-                </span>
+                <Image src="/assets/logo-qwen.png" alt="Qwen" width={80} height={24} className="h-5 w-auto object-contain opacity-60 grayscale" />
               </div>
             </div>
 
