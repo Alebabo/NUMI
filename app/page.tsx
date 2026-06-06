@@ -166,9 +166,9 @@ export default function LandingPage() {
                 Drop an audio file, paste a transcript, or speak directly to the ElevenLabs voice agent. MP3, WAV, TXT, JSON, VTT — all accepted.
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"/><path d="M5.5 14.5A6.5 6.5 0 0016.5 8h1A7.5 7.5 0 013 8h1a6.5 6.5 0 001.5 6.5V17H4v1h12v-1h-2.5v-2.5z"/></svg>
-                  ElevenLabs voice
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                  <Image src="/assets/logo-elevenlabs.png" alt="ElevenLabs" width={16} height={16} className="h-4 w-4 object-contain" />
+                  <span className="text-[11px] font-medium text-gray-500">ElevenLabs voice</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
                   <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd"/></svg>
@@ -185,9 +185,9 @@ export default function LandingPage() {
                 The Anti-Sycophant Engine runs two passes — a rater and an adversarial critic — powered by Qwen on Alibaba Cloud. No praise layer. Only what the call actually shows.
               </p>
               <div className="mt-5">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>
-                  Qwen · Alibaba Cloud
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                  <Image src="/assets/logo-qwen.png" alt="Qwen" width={16} height={16} className="h-4 w-4 object-contain" />
+                  <span className="text-[11px] font-medium text-gray-500">Qwen · Alibaba Cloud</span>
                 </span>
               </div>
             </div>
