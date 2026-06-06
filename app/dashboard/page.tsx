@@ -68,11 +68,6 @@ const analyzeLogs = [
 ];
 
 const repTrend = [5.8, 6.2, 6.4, 6.9, 7.3, 7.1, 7.8, 8.1];
-const repCalls = [
-  { name: "Demo discovery", score: 8.1, objections: 4, nextStep: "Calendar invite sent" },
-  { name: "Pricing follow-up", score: 7.4, objections: 3, nextStep: "Procurement loop" },
-  { name: "Inbound qualification", score: 6.8, objections: 2, nextStep: "Needs sharper close" }
-];
 
 const initialTeams: Team[] = [
   { id: 1, name: "DACH Mid-Market", reps: 6, target: 78, score: 7.6, calls: 84, trend: [6.2, 6.6, 6.9, 7.1, 7.4, 7.6] },
@@ -140,6 +135,51 @@ function MetricChart({ values, tone = "blue" }: { values: number[]; tone?: "blue
   );
 }
 
+const SKILL_LINES = [
+  { key: "objection", label: "Objection control", color: "#059669", data: [58, 62, 65, 68, 71, 71] },
+  { key: "pricing",   label: "Pricing discipline", color: "#2563eb", data: [55, 57, 60, 61, 63, 64] },
+  { key: "signals",   label: "Buying signals",    color: "#7c3aed", data: [72, 74, 77, 80, 81, 82] },
+  { key: "nextstep",  label: "Next-step quality", color: "#d97706", data: [66, 68, 70, 74, 77, 78] },
+];
+
+function MultiLineChart() {
+  const width = 520;
+  const height = 200;
+  const allValues = SKILL_LINES.flatMap((l) => l.data);
+  const min = Math.min(...allValues) - 5;
+  const max = Math.max(...allValues) + 5;
+  const range = max - min;
+  const steps = SKILL_LINES[0].data.length;
+
+  function toPoint(value: number, index: number) {
+    const x = (index / (steps - 1)) * width;
+    const y = height - ((value - min) / range) * height;
+    return { x, y };
+  }
+
+  return (
+    <div className="h-56 w-full rounded-lg border border-gray-200 bg-white p-4">
+      <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full overflow-visible">
+        {[0, 1, 2, 3].map((i) => (
+          <line key={i} x1="0" x2={width} y1={(height / 3) * i} y2={(height / 3) * i} stroke="#f3f4f6" strokeWidth="1" />
+        ))}
+        {SKILL_LINES.map((line) => {
+          const pts = line.data.map((v, i) => toPoint(v, i));
+          const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+          return (
+            <g key={line.key}>
+              <path d={d} fill="none" stroke={line.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              {pts.map((p, i) => (
+                <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#fff" stroke={line.color} strokeWidth="2" />
+              ))}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 function BarGraph({ teams }: { teams: Team[] }) {
   const maxCalls = Math.max(...teams.map((team) => team.calls), 1);
 
@@ -193,18 +233,11 @@ function ScorePanel({
   );
 }
 
-function SectionHeader({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string; description?: string }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wider text-gray-400">{eyebrow}</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
-        <p className="mt-1 text-sm text-gray-500">{description}</p>
-      </div>
-      <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-        ElevenLabs + Featherless Qwen
-      </div>
+    <div className="mb-6">
+      <p className="text-xs font-medium uppercase tracking-wider text-gray-400">{eyebrow}</p>
+      <h1 className="mt-1 text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
     </div>
   );
 }
@@ -223,6 +256,7 @@ export default function Home() {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showWrapped, setShowWrapped] = useState(false);
 
   const fileMeta = useMemo(() => {
     if (!file) return "";
@@ -460,8 +494,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-4">
-          <p className="text-xs text-gray-400">Audio goes through ElevenLabs. Transcripts go straight to the anti-sycophant scorer.</p>
+        <div className="mt-5 flex items-center justify-end gap-4">
           <button
             className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
             type="button"
@@ -551,36 +584,6 @@ export default function Home() {
           </BentoCard>
         </BentoGrid>
 
-        <BentoGrid>
-          <BentoCard colSpan={12}>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Viral Growth Asset</p>
-                <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-900">LinkedIn-ready recap export</h2>
-                <p className="mt-2 max-w-md text-sm leading-6 text-gray-500">
-                  This preview is rendered from the Anti-Sycophant Engine payload attached to the selected analysis.
-                </p>
-                <dl className="mt-5 space-y-3 text-sm">
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">Subject</dt>
-                    <dd className="mt-1 font-medium text-gray-900">{analysis.shareAsset.subjectName}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">Period</dt>
-                    <dd className="mt-1 font-medium text-gray-900">{analysis.shareAsset.periodLabel}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">Primary failure</dt>
-                    <dd className="mt-1 font-medium text-gray-900">{analysis.shareAsset.statement}</dd>
-                  </div>
-                </dl>
-              </div>
-              <div className="flex justify-start lg:justify-end">
-                <SalesRecapExportAsset payload={analysis.shareAsset} pinExportButton />
-              </div>
-            </div>
-          </BentoCard>
-        </BentoGrid>
       </div>
     );
   }
@@ -608,22 +611,6 @@ export default function Home() {
             <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-900">Calls by team</h2>
             <div className="mt-6">
               <BarGraph teams={teams} />
-            </div>
-          </BentoCard>
-        </BentoGrid>
-        <BentoGrid className="mt-4">
-          <BentoCard colSpan={12}>
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Viral Growth Asset</p>
-                <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-900">Wrapped export preview</h2>
-                <p className="mt-2 max-w-md text-sm leading-6 text-gray-500">
-                  Dashboard-level recap generated from the current team performance payload.
-                </p>
-              </div>
-              <div className="flex justify-start lg:justify-end">
-                <SalesRecapExportAsset payload={dashboardShareAsset} pinExportButton />
-              </div>
             </div>
           </BentoCard>
         </BentoGrid>
@@ -783,61 +770,85 @@ export default function Home() {
             ) : null}
           </BentoCard>
         </BentoGrid>
-        {role === "rep" ? (
-          <BentoGrid className="mt-4">
-            {repCalls.map((call) => (
-              <BentoCard key={call.name} colSpan={4}>
-                <p className="text-sm font-semibold text-gray-900">{call.name}</p>
-                <p className="mt-3 font-mono text-3xl font-semibold text-gray-900">{call.score.toFixed(1)}</p>
-                <p className="mt-1 text-xs text-gray-500">{call.objections} objections handled - {call.nextStep}</p>
-              </BentoCard>
-            ))}
-          </BentoGrid>
-        ) : null}
       </>
     );
   }
 
   function renderRepPerformance() {
+    const weaknesses = SKILL_LINES.filter((l) => l.data[l.data.length - 1] < 70);
+
     return (
       <>
-        <SectionHeader eyebrow="My performance" title="Your sales scorecard" description="See your performance as numbers and as a trend graph." />
+        <SectionHeader eyebrow="My performance" title="Your sales scorecard" />
         <BentoGrid>
-          <KpiCard title="Current score" value="8.1" subtitle="+0.8 over last month" colSpan={3} />
-          <KpiCard title="Calls reviewed" value="23" subtitle="This month" colSpan={3} />
-          <KpiCard title="Objections handled" value="71%" subtitle="+9 points" colSpan={3} />
-          <KpiCard title="Clear next steps" value="18" subtitle="Out of 23 calls" colSpan={3} />
+          <KpiCard title="Total calls" value="23" subtitle="All time" colSpan={4} />
+          <KpiCard title="Calls this week" value="5" subtitle="↑ 2 vs last week" colSpan={4} />
+          <KpiCard title="Avg score" value="74" subtitle="out of 100" colSpan={4} />
         </BentoGrid>
+
         <BentoGrid className="mt-4">
           <BentoCard colSpan={8}>
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Score graph</p>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-900">Numi score trend</h2>
-            <div className="mt-4">
-              <MetricChart values={repTrend} tone="emerald" />
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Score trend</p>
+                <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-900">Skill development over time</h2>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {SKILL_LINES.map((l) => (
+                  <span key={l.key} className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <span className="h-2 w-2 rounded-full" style={{ background: l.color }} />
+                    {l.label}
+                  </span>
+                ))}
+              </div>
             </div>
+            <MultiLineChart />
           </BentoCard>
+
           <BentoCard colSpan={4}>
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Skill mix</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Skill breakdown</p>
             <div className="mt-5 space-y-4">
-              {[
-                ["Objection control", 71],
-                ["Pricing discipline", 64],
-                ["Buying signal capture", 82],
-                ["Next-step quality", 78]
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <div className="mb-1 flex items-center justify-between text-xs">
-                    <span className="font-medium text-gray-700">{label}</span>
-                    <span className="font-mono text-gray-500">{value}%</span>
+              {SKILL_LINES.map((l) => {
+                const value = l.data[l.data.length - 1];
+                return (
+                  <div key={l.key}>
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="font-medium text-gray-700">{l.label}</span>
+                      <span className="font-mono text-gray-500">{value}%</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${value}%`, background: l.color }} />
+                    </div>
                   </div>
-                  <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
-                    <div className="h-full rounded-full bg-emerald-600" style={{ width: `${value}%` }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </BentoCard>
         </BentoGrid>
+
+        {weaknesses.length > 0 && (
+          <BentoGrid className="mt-4">
+            <BentoCard colSpan={12}>
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Weaknesses</p>
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-900">Focus areas</h2>
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {weaknesses.map((l) => {
+                  const value = l.data[l.data.length - 1];
+                  const delta = value - l.data[0];
+                  return (
+                    <div key={l.key} className="rounded-xl border border-red-100 bg-red-50 p-4">
+                      <p className="text-sm font-semibold text-gray-900">{l.label}</p>
+                      <p className="mt-1 font-mono text-3xl font-semibold text-red-600">{value}%</p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {delta >= 0 ? `+${delta}` : delta} pts over 6 months · below 70% threshold
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </BentoCard>
+          </BentoGrid>
+        )}
       </>
     );
   }
@@ -877,9 +888,91 @@ export default function Home() {
     return renderCallsView();
   }
 
+  const wrappedPayload = analysis ? analysis.shareAsset : dashboardShareAsset;
+
   return (
     <DashboardShell role={role} onRoleChange={changeRole} activeNav={activeNav} onNavChange={setActiveNav}>
-      <div className="mx-auto max-w-6xl">{renderView()}</div>
+      <div className="mx-auto max-w-6xl">
+        {/* Wrapped button — always visible top-right */}
+        <div className="mb-5 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setShowWrapped(true)}
+            className="inline-flex items-center gap-2 rounded-md bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-gray-700"
+          >
+            ↓ Wrapped
+          </button>
+        </div>
+
+        {renderView()}
+      </div>
+
+      {/* Wrapped Modal */}
+      {showWrapped && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setShowWrapped(false)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowWrapped(false)}
+              className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200"
+            >
+              <X size={14} />
+            </button>
+
+            <p className="mb-4 text-sm font-semibold text-gray-900">Share your Wrapped</p>
+
+            <SalesRecapExportAsset payload={wrappedPayload} />
+
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  window.open("https://www.linkedin.com/feed/", "_blank");
+                }}
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 py-3 text-xs font-medium text-gray-700 transition-colors hover:border-[#0077b5] hover:bg-[#0077b5]/5 hover:text-[#0077b5]"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  // Export PNG for Instagram (no web API)
+                  const exportBtn = document.querySelector<HTMLButtonElement>("[data-wrapped-export]");
+                  exportBtn?.click();
+                }}
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 py-3 text-xs font-medium text-gray-700 transition-colors hover:border-[#e1306c] hover:bg-[#e1306c]/5 hover:text-[#e1306c]"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                Instagram
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const text = `Numi Sales Recap — ${wrappedPayload.periodLabel}\n${wrappedPayload.subjectName}\n\n${wrappedPayload.statement}\n\n${wrappedPayload.rows.map((r) => `${r.label}: ${r.value}`).join("\n")}\n\n${wrappedPayload.footer}`;
+                  navigator.clipboard.writeText(text).catch(() => {});
+                  window.open("https://app.hubspot.com/", "_blank");
+                }}
+                className="flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 py-3 text-xs font-medium text-gray-700 transition-colors hover:border-[#ff7a59] hover:bg-[#ff7a59]/5 hover:text-[#ff7a59]"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current"><path d="M22.162 5.656a8.384 8.384 0 0 0-3.75-2.975 8.32 8.32 0 0 0-4.764-.261 8.357 8.357 0 0 0-4.065 2.26 8.31 8.31 0 0 0-2.2 4.1 8.33 8.33 0 0 0 .33 4.757 8.363 8.363 0 0 0 3.012 3.697 8.29 8.29 0 0 0 4.528 1.338c.707 0 1.41-.082 2.095-.244v3.376l-1.687-.596v2.054l3.47 1.225 3.47-1.225v-2.054l-1.686.596v-3.467a8.307 8.307 0 0 0 3.516-3.668 8.366 8.366 0 0 0 .607-4.686 8.35 8.35 0 0 0-2.876-5.227zm-8.51 12.004a5.547 5.547 0 0 1-3.063-.924 5.574 5.574 0 0 1-2.024-2.487 5.596 5.596 0 0 1-.219-3.196 5.578 5.578 0 0 1 1.484-2.752 5.548 5.548 0 0 1 2.74-1.518 5.528 5.528 0 0 1 3.198.21 5.567 5.567 0 0 1 2.494 2.014 5.598 5.598 0 0 1 .93 3.073 5.59 5.59 0 0 1-1.637 3.957 5.548 5.548 0 0 1-3.903 1.623z"/></svg>
+                HubSpot
+              </button>
+            </div>
+            <p className="mt-3 text-center text-[11px] text-gray-400">
+              LinkedIn & HubSpot: Text in die Zwischenablage + Tab öffnen · Instagram: PNG Export
+            </p>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

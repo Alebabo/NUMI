@@ -26,13 +26,7 @@ function slugify(value: string) {
     .slice(0, 48);
 }
 
-export function SalesRecapExportAsset({
-  payload,
-  pinExportButton = false
-}: {
-  payload: SalesRecapExportPayload;
-  pinExportButton?: boolean;
-}) {
+export function SalesRecapExportAsset({ payload }: { payload: SalesRecapExportPayload }) {
   const [exporting, setExporting] = useState(false);
   const assetRef = useRef<HTMLElement | null>(null);
 
@@ -203,17 +197,13 @@ export function SalesRecapExportAsset({
 
       <button
         type="button"
-        className={
-          pinExportButton
-            ? "fixed right-6 top-6 z-50 border border-black bg-white px-3 py-2 font-mono text-[11px] uppercase text-black shadow-sm transition-colors hover:bg-black hover:text-white disabled:cursor-wait disabled:opacity-35"
-            : "mt-3 p-0 font-mono text-[11px] uppercase text-black opacity-60 transition-opacity hover:opacity-100 disabled:cursor-wait disabled:opacity-35"
-        }
+        data-wrapped-export
+        className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-gray-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-wait disabled:opacity-50"
         disabled={exporting}
         onClick={exportPng}
       >
-        [ {exporting ? "Rendering PNG" : "Export for LinkedIn (PNG)"} ]
+        {exporting ? "Rendering…" : "↓ PNG exportieren"}
       </button>
-      {!pinExportButton ? <p className="mt-2 font-mono text-[10px] text-gray-400">{filename}</p> : null}
     </div>
   );
 }

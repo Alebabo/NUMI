@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 type Size = "sm" | "md";
+type Variant = "dark" | "light";
 
 const sizes: Record<Size, { mark: string; markText: string; wordmark: string }> = {
   sm: {
@@ -19,10 +20,12 @@ type NumiWordmarkProps = {
   size?: Size;
   href?: string;
   className?: string;
+  variant?: Variant;
 };
 
-export default function NumiWordmark({ size = "sm", href, className = "" }: NumiWordmarkProps) {
+export default function NumiWordmark({ size = "sm", href, className = "", variant = "dark" }: NumiWordmarkProps) {
   const s = sizes[size];
+  const wordmarkColor = variant === "light" ? "text-white" : "text-gray-800";
   const inner = (
     <span className={`inline-flex items-center gap-2 ${className}`} aria-label="Numi">
       <span
@@ -31,7 +34,7 @@ export default function NumiWordmark({ size = "sm", href, className = "" }: Numi
       >
         <span className={`${s.markText} font-bold leading-none text-white`}>N</span>
       </span>
-      <span className={`${s.wordmark} font-medium tracking-tight text-gray-800`}>Numi</span>
+      <span className={`${s.wordmark} font-medium tracking-tight ${wordmarkColor}`}>Numi</span>
     </span>
   );
 
