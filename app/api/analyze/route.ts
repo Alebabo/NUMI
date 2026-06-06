@@ -32,7 +32,7 @@ type RecapContext = {
 };
 
 const ELEVENLABS_URL = "https://api.elevenlabs.io/v1/speech-to-text";
-const DEFAULT_QWEN_BASE_URL = "https://api.featherless.ai/v1";
+const DEFAULT_QWEN_BASE_URL = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1";
 const DEFAULT_QWEN_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 function extractJson(content: string) {
@@ -301,9 +301,9 @@ async function transcribe(file: File) {
 }
 
 async function callQwen(system: string, user: string) {
-  const apiKey = process.env.FEATHERLESS_API_KEY || process.env.DASHSCOPE_API_KEY;
+  const apiKey = process.env.DASHSCOPE_API_KEY;
   if (!apiKey) {
-    throw new Error("FEATHERLESS_API_KEY is missing.");
+    throw new Error("DASHSCOPE_API_KEY is missing.");
   }
   const baseUrl = (process.env.QWEN_BASE_URL || DEFAULT_QWEN_BASE_URL).replace(/\/$/, "");
 
@@ -311,9 +311,7 @@ async function callQwen(system: string, user: string) {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:3000",
-      "X-Title": "Numi Hackathon Dashboard"
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       model: process.env.QWEN_MODEL || DEFAULT_QWEN_MODEL,
