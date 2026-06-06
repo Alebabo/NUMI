@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas";
 import pptxgen from "pptxgenjs";
+import html2canvas from "html2canvas";
 
 type RecapMode = "team" | "rep";
 
@@ -214,29 +214,27 @@ export default function SalesRecapShareAsset() {
     try {
       await document.fonts?.ready;
 
-      // Build LinkedIn carousel layout off-screen with pure inline styles
-      const EXPORT_W = 1400;
-      const EXPORT_H = Math.round(EXPORT_W * (9 / 16));
       const GAP = 8;
-      const BIG_W = Math.round(EXPORT_W * 0.63) - GAP;
-      const SMALL_W = EXPORT_W - BIG_W - GAP;
-      const SMALL_H = Math.round((EXPORT_H - GAP * 2) / 3);
-
+      const SMALL = 420;                        // small slide square size
+      const BIG = SMALL * 3 + GAP * 2;         // big slide = same height as 3 small stacked
+      const LAYOUT_W = BIG + GAP + SMALL;
+      const LAYOUT_H = BIG;
       const allSlides = slides.slice(0, 4);
 
-      function buildSlideEl(s: Slide, w: number, h: number, fontSize: number, pad: number): HTMLElement {
-        const el = document.createElement("div");
-        Object.assign(el.style, {
+      function buildCard(s: Slide, w: number, h: number, bigStat = false): HTMLElement {
+        const PAD = Math.round(w * 0.088); // ~p-7 proportional
+        const card = document.createElement("div");
+        Object.assign(card.style, {
           width: `${w}px`, height: `${h}px`,
           background: s.bg,
-          borderRadius: "12px",
-          padding: `${pad}px`,
+          borderRadius: "16px",
+          padding: `${PAD}px`,
           boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
           overflow: "hidden",
           flexShrink: "0",
+          fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         // Label pill
@@ -246,87 +244,136 @@ export default function SalesRecapShareAsset() {
           alignItems: "center",
           background: s.accent,
           borderRadius: "999px",
-          padding: `${Math.round(pad * 0.2)}px ${Math.round(pad * 0.55)}px`,
-          marginBottom: `${Math.round(pad * 0.5)}px`,
-          width: "fit-content",
+          padding: `${Math.round(PAD * 0.18)}px ${Math.round(PAD * 0.5)}px`,
+          marginBottom: `${Math.round(PAD * 0.55)}px`,
+          alignSelf: "flex-start",
         });
-        pill.innerHTML = `<span style="color:#fff;font-size:${Math.round(fontSize * 0.45)}px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">${s.label}</span>`;
+        const pillText = document.createElement("span");
+        Object.assign(pillText.style, {
+          color: "#fff",
+          fontSize: `${Math.round(w * 0.018)}px`,
+          fontWeight: "700",
+          textTransform: "uppercase",
+          letterSpacing: "0.1em",
+        });
+        pillText.textContent = s.label;
+        pill.appendChild(pillText);
+        card.appendChild(pill);
 
-        const body = document.createElement("div");
-        Object.assign(body.style, { display: "flex", flexDirection: "column", gap: `${Math.round(fontSize * 0.4)}px` });
+        // Content area — flex column, grows to fill
+        const content = document.createElement("div");
+        Object.assign(content.style, {
+          display: "flex",
+          flexDirection: "column",
+          flex: "1",
+          justifyContent: "space-between",
+        });
+
+        const top = document.createElement("div");
 
         if (s.stat) {
           const statEl = document.createElement("p");
-          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 4.8)}px`, fontWeight: "900", lineHeight: "1", margin: "0", letterSpacing: "-0.03em" });
+          Object.assign(statEl.style, {
+            color: "#fff",
+            fontSize: `${Math.round(w * (bigStat ? 0.38 : 0.19))}px`,
+            fontWeight: "900",
+            lineHeight: "1",
+            margin: "0 0 4px 0",
+            letterSpacing: "-0.03em",
+          });
           statEl.textContent = s.stat;
-          body.appendChild(statEl);
+          top.appendChild(statEl);
         }
 
-        // No stat + no items → headline fills the entire cell
-        const headlineFontSize = !s.stat && !s.items
-          ? Math.round(fontSize * 3.6)
-          : Math.round(fontSize * 1.05);
         const headlineEl = document.createElement("p");
-        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${headlineFontSize}px`, fontWeight: "900", lineHeight: "1.05", margin: "0", whiteSpace: "pre-line" });
+        const headlineFontSize = !s.stat && !s.items ? Math.round(w * 0.082) : Math.round(w * 0.052);
+        Object.assign(headlineEl.style, {
+          color: "#fff",
+          fontSize: `${headlineFontSize}px`,
+          fontWeight: "900",
+          lineHeight: "1.1",
+          margin: s.stat ? `${Math.round(w * 0.008)}px 0 0` : "0",
+          whiteSpace: "pre-line",
+        });
         headlineEl.textContent = s.headline;
-        body.appendChild(headlineEl);
+        top.appendChild(headlineEl);
 
-        // sub-text only on big slide (large fontSize), keep small slides clean
         if (s.items) {
           const ul = document.createElement("ul");
-          Object.assign(ul.style, { margin: `${Math.round(fontSize * 0.5)}px 0 0`, padding: "0", listStyle: "none", display: "flex", flexDirection: "column", gap: `${Math.round(fontSize * 0.4)}px` });
+          Object.assign(ul.style, {
+            margin: `${Math.round(w * 0.028)}px 0 0`,
+            padding: "0",
+            listStyle: "none",
+            display: "flex",
+            flexDirection: "column",
+            gap: `${Math.round(w * 0.018)}px`,
+          });
           s.items.forEach((item) => {
             const li = document.createElement("li");
-            Object.assign(li.style, { display: "flex", alignItems: "flex-start", gap: `${Math.round(fontSize * 0.35)}px` });
-            li.innerHTML = `<span style="width:${Math.round(fontSize * 0.3)}px;height:${Math.round(fontSize * 0.3)}px;border-radius:50%;background:rgba(255,255,255,0.7);flex-shrink:0;margin-top:${Math.round(fontSize * 0.28)}px"></span><span style="color:rgba(255,255,255,0.9);font-size:${Math.round(fontSize * 0.8)}px;font-weight:600;line-height:1.35">${item}</span>`;
+            Object.assign(li.style, { display: "flex", alignItems: "flex-start", gap: `${Math.round(w * 0.014)}px` });
+            li.innerHTML = `<span style="width:${Math.round(w * 0.012)}px;height:${Math.round(w * 0.012)}px;border-radius:50%;background:rgba(255,255,255,0.7);flex-shrink:0;margin-top:${Math.round(w * 0.012)}px"></span><span style="color:rgba(255,255,255,0.9);font-size:${Math.round(w * 0.038)}px;font-weight:600;line-height:1.35">${item}</span>`;
             ul.appendChild(li);
           });
-          body.appendChild(ul);
-        } else if (fontSize >= 40) {
-          // only render sub on the big slide
-          const sub = document.createElement("p");
-          Object.assign(sub.style, { color: "rgba(255,255,255,0.55)", fontSize: `${Math.round(fontSize * 0.5)}px`, lineHeight: "1.5", margin: `${Math.round(fontSize * 0.4)}px 0 0` });
-          sub.textContent = s.sub;
-          body.appendChild(sub);
+          top.appendChild(ul);
+        } else if (s.sub) {
+          const subEl = document.createElement("p");
+          Object.assign(subEl.style, {
+            color: "rgba(255,255,255,0.55)",
+            fontSize: `${Math.round(w * 0.032)}px`,
+            lineHeight: "1.5",
+            margin: `${Math.round(w * 0.022)}px 0 0`,
+          });
+          subEl.textContent = s.sub;
+          top.appendChild(subEl);
         }
 
-        const footer = document.createElement("div");
-        Object.assign(footer.style, { display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto", paddingTop: `${Math.round(pad * 0.3)}px` });
-        footer.innerHTML = `<span style="color:rgba(255,255,255,0.35);font-size:${Math.round(fontSize * 0.45)}px;font-weight:700;letter-spacing:0.05em">numi</span>`;
+        content.appendChild(top);
 
-        el.appendChild(pill);
-        el.appendChild(body);
-        el.appendChild(footer);
-        return el;
+        // Footer
+        const footer = document.createElement("div");
+        Object.assign(footer.style, { display: "flex", alignItems: "flex-end", justifyContent: "space-between" });
+        const numiLabel = document.createElement("span");
+        Object.assign(numiLabel.style, {
+          color: "rgba(255,255,255,0.35)",
+          fontSize: `${Math.round(w * 0.018)}px`,
+          fontWeight: "700",
+          letterSpacing: "0.05em",
+        });
+        numiLabel.textContent = "numi";
+        footer.appendChild(numiLabel);
+        content.appendChild(footer);
+
+        card.appendChild(content);
+        return card;
       }
 
+      // Build off-screen container: big slide left, 3 small squares stacked right
       const container = document.createElement("div");
       Object.assign(container.style, {
-        position: "fixed", top: "-9999px", left: "-9999px",
-        width: `${EXPORT_W}px`, height: `${EXPORT_H}px`,
+        position: "fixed", top: "-99999px", left: "-99999px",
+        width: `${LAYOUT_W}px`, height: `${LAYOUT_H}px`,
         display: "flex", gap: `${GAP}px`,
-        background: "#111111",
-        borderRadius: "16px",
+        background: "#111",
+        borderRadius: "20px",
         overflow: "hidden",
-        fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif",
       });
 
-      // Big first slide — large font + generous padding
-      container.appendChild(buildSlideEl(allSlides[0], BIG_W, EXPORT_H, 48, 52));
+      container.appendChild(buildCard(allSlides[0], BIG, BIG, true));
 
-      // 3 small slides stacked — smaller font, tighter padding
       const stack = document.createElement("div");
-      Object.assign(stack.style, { width: `${SMALL_W}px`, display: "flex", flexDirection: "column", gap: `${GAP}px`, flexShrink: "0" });
-      allSlides.slice(1, 4).forEach((s) => stack.appendChild(buildSlideEl(s, SMALL_W, SMALL_H, 18, 20)));
+      Object.assign(stack.style, {
+        display: "flex", flexDirection: "column", gap: `${GAP}px`, flexShrink: "0",
+      });
+      allSlides.slice(1, 4).forEach((s) => stack.appendChild(buildCard(s, SMALL, SMALL)));
       container.appendChild(stack);
 
       document.body.appendChild(container);
 
       const canvas = await html2canvas(container, {
         backgroundColor: "#111111",
-        scale: 1,
-        width: EXPORT_W,
-        height: EXPORT_H,
+        scale: 2,
+        width: LAYOUT_W,
+        height: LAYOUT_H,
         useCORS: true,
         removeContainer: false,
         logging: false,
@@ -335,7 +382,7 @@ export default function SalesRecapShareAsset() {
       document.body.removeChild(container);
 
       const link = document.createElement("a");
-      link.download = `numi-recap-${mode}.png`;
+      link.download = "numi-recap.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
     } finally {

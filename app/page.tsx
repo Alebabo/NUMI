@@ -9,7 +9,7 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-[#fafafa]/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
-          <NumiWordmark size="md" href="/" />
+          <NumiWordmark size="md" href="/" logoOpacity={0.4} />
           <nav className="flex items-center gap-2">
             <a
               href="#marketing"
@@ -41,12 +41,23 @@ export default function LandingPage() {
       <section className="relative mx-auto flex min-h-[calc(100vh-3.5rem)] w-full max-w-6xl flex-col justify-center overflow-hidden px-5 pb-20 pt-12 sm:px-8">
         {/* Figure — desktop only */}
         <div className="pointer-events-none absolute bottom-0 right-[-80px] hidden select-none lg:block">
+          {/* Outline — slightly offset behind */}
           <Image
-            src="/assets/firefly-1.png"
+            src="/assets/jordan_umriss.png"
             alt=""
             height={900}
             width={780}
-            className="h-[55vh] w-auto object-contain object-bottom"
+            className="absolute bottom-0 right-0 h-[55vh] w-auto object-contain object-bottom opacity-20"
+            style={{ transform: "translate(28px, -12px)" }}
+            aria-hidden="true"
+          />
+          {/* Main figure */}
+          <Image
+            src="/assets/jordan.png"
+            alt=""
+            height={900}
+            width={780}
+            className="relative h-[55vh] w-auto object-contain object-bottom"
             priority
           />
         </div>
@@ -129,7 +140,17 @@ export default function LandingPage() {
       </section>
 
       {/* Sales Recap */}
-      <section id="marketing" className="border-t border-gray-100 bg-white">
+      <section id="marketing" className="relative overflow-hidden border-t border-gray-100 bg-white">
+        {/* Jordan Umriss background */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden select-none lg:block" aria-hidden="true">
+          <Image
+            src="/assets/jordan_umriss.png"
+            alt=""
+            height={900}
+            width={780}
+            className="h-full w-auto object-contain object-right opacity-[0.04]"
+          />
+        </div>
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:py-28">
           <div className="max-w-md">
             <p className="text-xs font-medium uppercase tracking-widest text-gray-400">Viral distribution</p>
