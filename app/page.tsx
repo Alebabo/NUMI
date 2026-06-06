@@ -70,9 +70,9 @@ export default function LandingPage() {
           </div>
 
           {/* HubSpot integration hint */}
-          <div className="mt-8 inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-3.5 py-2 shadow-sm">
-            <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={18} height={18} className="h-[18px] w-auto object-contain" />
-            <span className="text-[12px] font-medium text-gray-700">Direct HubSpot integration — calls sync automatically</span>
+          <div className="mt-8 flex items-center gap-2">
+            <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={72} height={20} className="h-5 w-auto object-contain" />
+            <span className="text-sm text-gray-500">integration</span>
           </div>
 
           {/* Trusted by — inline in hero */}
@@ -128,7 +128,7 @@ export default function LandingPage() {
       <section className="border-t border-gray-100 bg-white">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:py-28">
           <div className="max-w-md">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-400">The Sales Recap</p>
+            <p className="text-xs font-medium uppercase tracking-widest text-gray-400">Viral distribution</p>
             <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight text-gray-950 sm:text-5xl">
               Spotify Wrapped for sales reps. Built to be shared.
             </h2>
@@ -158,9 +158,8 @@ export default function LandingPage() {
       {/* How it works */}
       <section className="border-t border-gray-100 bg-[#fafafa]">
         <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 lg:py-24">
-          <p className="text-xs font-medium uppercase tracking-widest text-gray-400">How it works</p>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-gray-950 sm:text-4xl">
-            Three steps. No fluff.
+          <h2 className="text-3xl font-black tracking-tight text-gray-950 sm:text-4xl">
+            How it works.
           </h2>
 
           <div className="mt-14 grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-3">
