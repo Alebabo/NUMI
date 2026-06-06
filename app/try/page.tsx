@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import Link from "next/link";
-import { createElement, useState } from "react";
+import { useState } from "react";
 import { AlertCircle, ArrowLeft, ClipboardList, RefreshCcw, Sparkles } from "lucide-react";
 import NumiWordmark from "../../components/NumiWordmark";
 
@@ -22,7 +22,6 @@ type TryAnalysis = {
 };
 
 export default function TryPage() {
-  const agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
   const [transcript, setTranscript] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -100,42 +99,31 @@ export default function TryPage() {
             Product to sell: <span className="font-semibold text-gray-950">Numi</span>. Keep it under one minute, handle price
             pressure, and ask for a concrete follow-up.
           </div>
+
+          {/* Widget hint */}
+          <div className="mt-8 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5 shadow-sm">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm-2 6a2 2 0 104 0V4a1 1 0 10-2 0v6zm9 0a5 5 0 01-10 0H3a7 7 0 0014 0h-3z"/></svg>
+            </span>
+            <div className="min-w-0 flex-1 text-sm">
+              <p className="font-medium text-gray-900">Voice agent is live</p>
+              <p className="text-gray-500">Open the chat widget in the <span className="font-medium text-gray-700">bottom-right corner</span> to start your call.</p>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5 shrink-0 translate-y-1 text-gray-300">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
 
         <div className="grid gap-5">
-          <section className="border border-gray-200 bg-white p-5 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-            <div className="mb-5 flex items-center justify-between border-b border-gray-200 pb-4">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">ElevenLabs call</p>
-                <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-950">Sell Numi in 60 seconds</h2>
-              </div>
-              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100">
-                Voice
-              </span>
-            </div>
-
-            {agentId ? (
-              <div className="min-h-[360px]">
-                {createElement("elevenlabs-convai", { "agent-id": agentId, variant: "expanded" })}
-              </div>
-            ) : (
-              <div className="flex min-h-[360px] flex-col justify-center border border-dashed border-gray-300 bg-gray-50 p-6">
-                <p className="text-sm font-semibold text-gray-950">ElevenLabs agent is not configured.</p>
-                <p className="mt-3 max-w-xl text-sm leading-7 text-gray-600">
-                  Add `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` to `.env.local` with your ElevenLabs Conversational AI agent ID, then
-                  restart the dev server. The official widget will render here.
-                </p>
-              </div>
-            )}
-          </section>
-
           <section className="border border-gray-200 bg-white p-5">
             <div className="mb-4 flex items-center gap-2">
               <ClipboardList size={16} strokeWidth={1.8} className="text-gray-500" />
               <h2 className="text-sm font-semibold tracking-tight text-gray-950">Analyze this call</h2>
             </div>
             <p className="text-sm leading-7 text-gray-600">
-              After the live pitch, paste the transcript here and run the same Anti-Sycophant Engine used in the dashboard.
+              After the call, paste the transcript here to run the Anti-Sycophant Engine.{" "}
+              <span className="font-medium text-gray-800">Or skip the voice call entirely</span> — type directly below to save tokens.
             </p>
 
             <textarea

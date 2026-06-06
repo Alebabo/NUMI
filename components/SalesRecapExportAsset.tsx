@@ -10,25 +10,141 @@ export type SalesRecapExportPayload = {
   metaLeft: string;
   metaRight: string;
   statement: string;
-  rows: Array<{
-    label: string;
-    value: string;
-  }>;
+  rows: Array<{ label: string; value: string }>;
   footer: string;
   filenameSubject: string;
 };
 
 function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, 48);
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 48);
+}
+
+const SLIDE_THEMES = [
+  { bg: "linear-gradient(135deg, #1a0533 0%, #3b0764 60%, #6b21a8 100%)", accent: "rgba(255,255,255,0.15)" },
+  { bg: "linear-gradient(135deg, #e8115b 0%, #c2185b 100%)",              accent: "rgba(255,255,255,0.18)" },
+  { bg: "linear-gradient(135deg, #065f46 0%, #047857 60%, #10b981 100%)", accent: "rgba(255,255,255,0.15)" },
+  { bg: "linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #3b82f6 100%)", accent: "rgba(255,255,255,0.15)" },
+];
+
+type SlideData = { label: string; headline: string; sub: string; stat?: string };
+
+function buildSlides(payload: SalesRecapExportPayload): SlideData[] {
+  return [
+    {
+      label: payload.periodLabel,
+      headline: payload.statement,
+      sub: `${payload.projectName} · ${payload.subjectName}`,
+    },
+    {
+      label: payload.rows[0]?.label ?? "Finding 1",
+      headline: payload.rows[0]?.value ?? "",
+      sub: payload.subjectName,
+    },
+    {
+      label: payload.rows[1]?.label ?? "Finding 2",
+      headline: payload.rows[1]?.value ?? "",
+      sub: payload.subjectName,
+    },
+    {
+      label: payload.rows[2]?.label ?? "Finding 3",
+      headline: payload.rows[2]?.value ?? "",
+      sub: payload.footer,
+    },
+  ];
+}
+
+function SlideCard({
+  data,
+  theme,
+  style,
+  innerStyle,
+}: {
+  data: SlideData;
+  theme: (typeof SLIDE_THEMES)[number];
+  style?: React.CSSProperties;
+  innerStyle?: React.CSSProperties;
+}) {
+  return (
+    <div
+      style={{
+        background: theme.bg,
+        borderRadius: 12,
+        overflow: "hidden",
+        padding: 20,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        boxSizing: "border-box",
+        ...style,
+      }}
+    >
+      <div>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            background: theme.accent,
+            borderRadius: 999,
+            padding: "4px 10px",
+            marginBottom: 12,
+          }}
+        >
+          <span
+            style={{
+              color: "#fff",
+              fontSize: innerStyle?.fontSize ? Number(innerStyle.fontSize) * 0.55 : 10,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {data.label}
+          </span>
+        </div>
+        {data.stat && (
+          <p
+            style={{
+              color: "#fff",
+              fontSize: innerStyle?.fontSize ? Number(innerStyle.fontSize) * 2.2 : 40,
+              fontWeight: 900,
+              lineHeight: 1,
+              margin: "0 0 6px",
+            }}
+          >
+            {data.stat}
+          </p>
+        )}
+        <p
+          style={{
+            color: "#fff",
+            fontWeight: 700,
+            lineHeight: 1.2,
+            margin: 0,
+            ...innerStyle,
+          }}
+        >
+          {data.headline}
+        </p>
+      </div>
+      <p
+        style={{
+          color: "rgba(255,255,255,0.55)",
+          fontSize: innerStyle?.fontSize ? Number(innerStyle.fontSize) * 0.7 : 11,
+          lineHeight: 1.4,
+          margin: "12px 0 0",
+        }}
+      >
+        {data.sub}
+      </p>
+    </div>
+  );
 }
 
 export function SalesRecapExportAsset({ payload }: { payload: SalesRecapExportPayload }) {
   const [exporting, setExporting] = useState(false);
-  const assetRef = useRef<HTMLElement | null>(null);
+  const assetRef = useRef<HTMLDivElement | null>(null);
+
+  const slides = useMemo(() => buildSlides(payload), [payload]);
 
   const filename = useMemo(() => {
     const subject = slugify(payload.filenameSubject || payload.subjectName || "sales");
@@ -39,34 +155,16 @@ export function SalesRecapExportAsset({ payload }: { payload: SalesRecapExportPa
   async function exportPng() {
     if (!assetRef.current || exporting) return;
     setExporting(true);
-
     try {
       await document.fonts?.ready;
-      const source = assetRef.current;
-      const width = source.getBoundingClientRect().width;
-      const scale = 1200 / width;
-      const canvas = await html2canvas(source, {
-        backgroundColor: "#ffffff",
-        scale,
-        width,
-        height: width * 1.25,
+      const el = assetRef.current;
+      const w = el.getBoundingClientRect().width;
+      const canvas = await html2canvas(el, {
+        backgroundColor: null,
+        scale: 1400 / w,
         useCORS: true,
         removeContainer: true,
-        onclone: (clonedDocument) => {
-          const style = clonedDocument.createElement("style");
-          style.textContent = `
-            .numi-export-asset, .numi-export-asset * {
-              box-sizing: border-box !important;
-              font-synthesis: none !important;
-              letter-spacing: 0 !important;
-              -webkit-font-smoothing: antialiased !important;
-              text-rendering: geometricPrecision !important;
-            }
-          `;
-          clonedDocument.head.appendChild(style);
-        }
       });
-
       const link = document.createElement("a");
       link.download = filename;
       link.href = canvas.toDataURL("image/png");
@@ -76,124 +174,48 @@ export function SalesRecapExportAsset({ payload }: { payload: SalesRecapExportPa
     }
   }
 
+  const GAP = 8;
+  const SMALL_W = "37%";
+  const BIG_W = `calc(63% - ${GAP}px)`;
+  const SMALL_H = `calc((100% - ${GAP * 2}px) / 3)`;
+
   return (
-    <div className="w-full max-w-[480px]">
-      <article
+    <div className="w-full">
+      {/* LinkedIn carousel preview */}
+      <div
         ref={assetRef}
-        className="numi-export-asset"
-        aria-label={`${payload.subjectName} Numi Sales Recap export preview`}
         style={{
-          position: "relative",
           width: "100%",
-          aspectRatio: "4 / 5",
-          background: "#fcfcfc",
-          border: "1px solid #111111",
-          color: "#000000",
-          padding: 40,
-          fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif"
+          aspectRatio: "16 / 9",
+          display: "flex",
+          gap: GAP,
+          padding: 0,
+          background: "transparent",
+          borderRadius: 16,
+          overflow: "hidden",
         }}
       >
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 10,
-            border: "1px solid rgba(0,0,0,0.025)",
-            pointerEvents: "none"
-          }}
+        {/* Big first slide */}
+        <SlideCard
+          data={slides[0]}
+          theme={SLIDE_THEMES[0]}
+          style={{ width: BIG_W, height: "100%", borderRadius: 12, flexShrink: 0 }}
+          innerStyle={{ fontSize: 22 }}
         />
 
-        <div style={{ position: "relative", zIndex: 1, display: "flex", height: "100%", flexDirection: "column" }}>
-          <div style={{ borderBottom: "1px solid #000000", paddingBottom: 16 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "space-between",
-                gap: 20,
-                fontFamily: "var(--font-geist-mono), Consolas, monospace",
-                fontSize: 10,
-                lineHeight: "16px",
-                textTransform: "uppercase"
-              }}
-            >
-              <p style={{ margin: 0 }}>{payload.metaLeft}</p>
-              <p style={{ margin: 0, textAlign: "right" }}>{payload.metaRight}</p>
-            </div>
-          </div>
-
-          <div style={{ borderBottom: "1px solid #000000", padding: "32px 0" }}>
-            <div
-              style={{
-                marginBottom: 20,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontFamily: "var(--font-geist-mono), Consolas, monospace",
-                fontSize: 10,
-                lineHeight: "16px",
-                textTransform: "uppercase"
-              }}
-            >
-              <span style={{ height: 8, width: 8, borderRadius: 999, background: "#ff0000" }} />
-              <span>{payload.projectName}</span>
-            </div>
-            <h3
-              style={{
-                margin: 0,
-                maxWidth: 390,
-                fontSize: 38,
-                fontWeight: 650,
-                lineHeight: 1.04,
-                letterSpacing: 0
-              }}
-            >
-              {payload.statement}
-            </h3>
-          </div>
-
-          <dl style={{ margin: 0, borderBottom: "1px solid #000000" }}>
-            {payload.rows.slice(0, 3).map((row) => (
-              <div
-                key={row.label}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "118px 1fr",
-                  gap: 20,
-                  borderBottom: "1px solid #000000",
-                  padding: "16px 0"
-                }}
-              >
-                <dt
-                  style={{
-                    fontFamily: "var(--font-geist-mono), Consolas, monospace",
-                    fontSize: 10,
-                    lineHeight: "16px",
-                    textTransform: "uppercase"
-                  }}
-                >
-                  {row.label}
-                </dt>
-                <dd style={{ margin: 0, fontSize: 13, fontWeight: 600, lineHeight: "20px" }}>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
-
-          <div style={{ marginTop: "auto", paddingTop: 16 }}>
-            <p
-              style={{
-                margin: 0,
-                fontFamily: "var(--font-geist-mono), Consolas, monospace",
-                fontSize: 9,
-                lineHeight: "16px",
-                textTransform: "uppercase"
-              }}
-            >
-              {payload.footer}
-            </p>
-          </div>
+        {/* 3 smaller slides stacked */}
+        <div style={{ width: SMALL_W, display: "flex", flexDirection: "column", gap: GAP, flexShrink: 0 }}>
+          {slides.slice(1, 4).map((slide, i) => (
+            <SlideCard
+              key={slide.label + i}
+              data={slide}
+              theme={SLIDE_THEMES[i + 1]}
+              style={{ height: SMALL_H, borderRadius: 10, padding: 14 }}
+              innerStyle={{ fontSize: 11 }}
+            />
+          ))}
         </div>
-      </article>
+      </div>
 
       <button
         type="button"

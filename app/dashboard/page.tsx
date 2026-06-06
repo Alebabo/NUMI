@@ -30,6 +30,50 @@ type Finding = {
   severity: "weak" | "moderate";
 };
 
+type CallRecord = {
+  id: string;
+  rep: string;
+  repId: "anna" | "ben" | "clara" | "demo";
+  date: string;
+  duration: string;
+  numiScore: number | null;
+  status: "analyzed" | "pending" | "failed";
+  transcript: string;
+};
+
+const mockCalls: CallRecord[] = [
+  {
+    id: "c001", rep: "Anna Müller", repId: "anna", date: "2026-06-05", duration: "32 min",
+    numiScore: 8.1, status: "analyzed",
+    transcript: `[00:01] rep: Guten Tag Herr Schmidt, danke dass Sie sich Zeit nehmen.\n[00:15] prospect: Kein Problem, ich habe aber nur 20 Minuten.\n[00:18] rep: Verstehe. Darf ich direkt fragen — was hat Sie dazu bewogen, diesen Termin anzunehmen?\n[01:02] prospect: Wir haben intern diskutiert ob wir unsere Analyse-Prozesse automatisieren sollen.\n[01:15] rep: Welche Prozesse konkret? Geht es mehr um Reporting oder um operative Entscheidungen?\n[02:00] prospect: Hauptsächlich Reporting, aber wenn das gut funktioniert, auch Entscheidungen.\n[02:20] rep: Wie lange dauert ein typischer Reporting-Zyklus bei Ihnen heute?\n[03:10] prospect: Ungefähr drei Tage manuell.\n[03:15] rep: Drei Tage — und wie oft kommt es vor, dass eine Entscheidung auf diesen Report wartet?\n[04:00] prospect: Öfter als mir lieb ist. Letzte Woche zweimal.`
+  },
+  {
+    id: "c002", rep: "Ben Richter", repId: "ben", date: "2026-06-04", duration: "18 min",
+    numiScore: 5.4, status: "analyzed",
+    transcript: `[00:01] rep: Hallo! Super dass wir uns sprechen können, ich freue mich wirklich darauf.\n[00:20] prospect: Mhm. Was genau wollten Sie mir zeigen?\n[00:28] rep: Also wir haben ein tolles Produkt das wirklich vielen Unternehmen geholfen hat...\n[01:45] prospect: Ja aber was kostet das?\n[01:50] rep: Das ist sehr flexibel, wir finden sicher etwas Passendes für Sie.\n[02:10] prospect: Können Sie mir eine Zahl nennen?\n[02:15] rep: Das hängt sehr von Ihren Anforderungen ab. Was ist denn Ihr Budget?\n[03:00] prospect: Ich frage Sie.\n[03:05] rep: Wir starten bei etwa 800€ monatlich, aber da gibt es viele Möglichkeiten nach oben und unten.`
+  },
+  {
+    id: "c003", rep: "Clara Bauer", repId: "clara", date: "2026-06-03", duration: "41 min",
+    numiScore: 7.3, status: "analyzed",
+    transcript: `[00:01] rep: Frau Hoffmann, ich habe mir Ihre letzten Quartalszahlen angesehen — Ihr Wachstum ist beeindruckend.\n[00:30] prospect: Danke. Wir wachsen schnell, das bringt aber auch Probleme mit sich.\n[00:38] rep: Welche Probleme sehen Sie konkret?\n[01:10] prospect: Die Onboarding-Zeit für neue Reps. Aktuell sechs Monate bis zur vollen Produktivität.\n[01:20] rep: Sechs Monate — was ist der teuerste Teil davon?\n[02:00] prospect: Wahrscheinlich die ersten drei, wenn sie noch nichts abschließen aber trotzdem kosten.\n[02:15] rep: Wenn Sie diese drei Monate auf sechs Wochen verkürzen könnten, was wäre das wert?\n[03:00] prospect: Das würde uns pro Rep etwa 40.000€ sparen.\n[03:10] rep: Dann sollten wir genau dort anfangen.`
+  },
+  {
+    id: "c004", rep: "Demo Rep", repId: "demo", date: "2026-06-02", duration: "27 min",
+    numiScore: null, status: "pending",
+    transcript: ""
+  },
+  {
+    id: "c005", rep: "Anna Müller", repId: "anna", date: "2026-06-01", duration: "14 min",
+    numiScore: 6.2, status: "analyzed",
+    transcript: `[00:01] rep: Guten Tag, haben Sie kurz Zeit?\n[00:10] prospect: Was geht es um?\n[00:12] rep: Wir bieten eine Lösung für Ihr Vertriebsteam an.\n[00:45] prospect: Was genau?\n[00:50] rep: Call-Analyse und Coaching-Unterstützung für Sales-Teams.\n[01:20] prospect: Wir haben schon etwas ähnliches.\n[01:25] rep: Ah, was nutzen Sie aktuell?\n[02:00] prospect: Gong.\n[02:05] rep: Okay, und was fehlt Ihnen bei Gong?\n[02:30] prospect: Eigentlich nichts Gravierendes.`
+  },
+  {
+    id: "c006", rep: "Ben Richter", repId: "ben", date: "2026-05-31", duration: "22 min",
+    numiScore: null, status: "failed",
+    transcript: ""
+  },
+];
+
 type Analysis = {
   numiScore: number;
   genericLlmScore: number;
@@ -257,6 +301,7 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showWrapped, setShowWrapped] = useState(false);
+  const [transcriptCall, setTranscriptCall] = useState<CallRecord | null>(null);
 
   const fileMeta = useMemo(() => {
     if (!file) return "";
@@ -720,57 +765,135 @@ export default function Home() {
   function renderCallsView() {
     if (analysis) return renderAnalysis();
 
+    const isManager = role === "manager";
+    const visibleCalls = isManager
+      ? mockCalls
+      : mockCalls.filter((c) => c.repId === "demo");
+
+    function statusBadge(call: CallRecord) {
+      if (call.status === "analyzed" && call.numiScore !== null) {
+        const color = call.numiScore >= 7.5
+          ? "text-emerald-700 bg-emerald-50 ring-emerald-200"
+          : call.numiScore >= 5
+            ? "text-amber-700 bg-amber-50 ring-amber-200"
+            : "text-red-700 bg-red-50 ring-red-200";
+        return (
+          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${color}`}>
+            {call.numiScore.toFixed(1)}
+          </span>
+        );
+      }
+      if (call.status === "pending") {
+        return <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 ring-1 ring-gray-200">Pending</span>;
+      }
+      return <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-500 ring-1 ring-red-200">Failed</span>;
+    }
+
     return (
       <>
         <SectionHeader
-          eyebrow={role === "manager" ? "All calls" : "My calls"}
-          title={role === "manager" ? "Review team calls" : "Review my calls"}
-          description={role === "manager" ? "Upload calls, inspect scoring, and route coaching moments." : "Upload your calls and track where your score is moving."}
+          eyebrow={isManager ? "All calls" : "My calls"}
+          title={isManager ? "All team calls" : "My calls"}
         />
-        <BentoGrid>
-          {renderUploadCard()}
-          <BentoCard colSpan={4}>
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Pipeline</p>
-            {loading ? (
-              <div className="mt-4" aria-label="Analysis progress">
-                <div className="mb-2 flex items-center justify-between font-mono text-[11px] uppercase text-gray-500">
-                  <span>Analyzing call</span>
-                  <span>{analysisProgress}%</span>
+
+        {/* Call list */}
+        <BentoCard colSpan={12}>
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+              {visibleCalls.length} calls
+            </p>
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-700"
+            >
+              <Upload size={12} />
+              Analyze new call
+            </button>
+          </div>
+          <div className="overflow-hidden rounded-lg border border-gray-200">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-400">
+                <tr>
+                  {isManager && <th className="px-4 py-3 font-medium">Rep</th>}
+                  <th className="px-4 py-3 font-medium">Date</th>
+                  <th className="px-4 py-3 font-medium">Duration</th>
+                  <th className="px-4 py-3 font-medium">Score</th>
+                  <th className="px-4 py-3 font-medium"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {visibleCalls.map((call) => (
+                  <tr key={call.id} className="bg-white hover:bg-gray-50">
+                    {isManager && (
+                      <td className="px-4 py-3 font-medium text-gray-900">{call.rep}</td>
+                    )}
+                    <td className="px-4 py-3 text-gray-600">{call.date}</td>
+                    <td className="px-4 py-3 font-mono text-gray-600">{call.duration}</td>
+                    <td className="px-4 py-3">{statusBadge(call)}</td>
+                    <td className="px-4 py-3 text-right">
+                      {call.transcript ? (
+                        <button
+                          type="button"
+                          onClick={() => setTranscriptCall(call)}
+                          className="text-xs font-medium text-blue-600 hover:text-blue-800"
+                        >
+                          Transcript
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </BentoCard>
+
+        {/* Hidden upload + pipeline for "Analyze new call" flow */}
+        <div className="mt-4">
+          <BentoGrid>
+            {renderUploadCard()}
+            <BentoCard colSpan={4}>
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Pipeline</p>
+              {loading ? (
+                <div className="mt-4" aria-label="Analysis progress">
+                  <div className="mb-2 flex items-center justify-between font-mono text-[11px] uppercase text-gray-500">
+                    <span>Analyzing call</span>
+                    <span>{analysisProgress}%</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                    <div className="h-full rounded-full bg-blue-600 transition-all duration-500 ease-out" style={{ width: `${analysisProgress}%` }} />
+                  </div>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                  <div
-                    className="h-full rounded-full bg-blue-600 transition-all duration-500 ease-out"
-                    style={{ width: `${analysisProgress}%` }}
-                  />
-                </div>
-              </div>
-            ) : null}
-            <div className="mt-4 space-y-3">
-              {["Read file", "Extract cited evidence", "Critic review", "Compute score"].map((step, index) => (
-                <div key={step} className="flex items-center gap-3">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 ring-1 ring-gray-200">
-                    {loading && index === 3 ? <RefreshCcw size={12} /> : <Check size={12} />}
-                  </span>
-                  <span className="text-sm text-gray-700">{step}</span>
-                </div>
-              ))}
-            </div>
-            {loading ? (
-              <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-[12px] leading-relaxed text-gray-500" role="log" aria-live="polite">
-                {analyzeLogs.map((line) => (
-                  <p key={line}>{line}</p>
+              ) : null}
+              <div className="mt-4 space-y-3">
+                {["Read file", "Extract cited evidence", "Critic review", "Compute score"].map((step, index) => (
+                  <div key={step} className="flex items-center gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 ring-1 ring-gray-200">
+                      {loading && index === 3 ? <RefreshCcw size={12} /> : <Check size={12} />}
+                    </span>
+                    <span className="text-sm text-gray-700">{step}</span>
+                  </div>
                 ))}
               </div>
-            ) : null}
-            {error ? (
-              <div className="mt-6 flex gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                <p>{error}</p>
-              </div>
-            ) : null}
-          </BentoCard>
-        </BentoGrid>
-      </>
+              {loading ? (
+                <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-[12px] leading-relaxed text-gray-500" role="log" aria-live="polite">
+                  {analyzeLogs.map((line) => <p key={line}>{line}</p>)}
+                </div>
+              ) : null}
+              {error ? (
+                <div className="mt-6 flex gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                  <p>{error}</p>
+                </div>
+              ) : null}
+            </BentoCard>
+          </BentoGrid>
+        </div>
+
+</>
     );
   }
 
@@ -907,6 +1030,39 @@ export default function Home() {
         {renderView()}
       </div>
 
+      {/* Transcript Modal */}
+      {transcriptCall && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setTranscriptCall(null)}
+        >
+          <div
+            className="relative flex w-full max-w-xl flex-col rounded-2xl bg-white shadow-2xl"
+            style={{ maxHeight: "80vh" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{transcriptCall.rep}</p>
+                <p className="text-xs text-gray-400">{transcriptCall.date} · {transcriptCall.duration}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTranscriptCall(null)}
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200"
+              >
+                <X size={14} />
+              </button>
+            </div>
+            <div className="overflow-y-auto px-5 py-4">
+              <pre className="whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-gray-700">
+                {transcriptCall.transcript}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Wrapped Modal */}
       {showWrapped && (
         <div
@@ -914,7 +1070,7 @@ export default function Home() {
           onClick={() => setShowWrapped(false)}
         >
           <div
-            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button

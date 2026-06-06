@@ -60,17 +60,27 @@ export default function LandingPage() {
               Try it Yourself
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Logo Cloud */}
-      <section className="border-y border-gray-100 bg-white">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-5 py-10 sm:px-8">
-          <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">Trusted by</p>
-          <div className="flex flex-wrap items-center justify-center gap-10">
-            <span className="text-sm font-semibold tracking-tight text-gray-300">aybee.gmbh</span>
-            <span className="h-3 w-px bg-gray-200" />
-            <span className="text-sm font-semibold tracking-tight text-gray-300">refinq.com</span>
+          {/* Trusted by — inline in hero */}
+          <div className="mt-12 flex flex-col gap-4">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">Trusted by</p>
+            <div className="flex items-center gap-8">
+              <Image
+                src="/assets/logo-aybee.svg"
+                alt="aybee"
+                width={80}
+                height={28}
+                className="h-6 w-auto object-contain opacity-50 grayscale"
+              />
+              <span className="h-3 w-px bg-gray-300" />
+              <Image
+                src="/assets/logo-refinq.avif"
+                alt="refinq"
+                width={80}
+                height={28}
+                className="h-6 w-auto object-contain opacity-50 grayscale"
+              />
+            </div>
           </div>
         </div>
       </section>
