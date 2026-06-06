@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 type Size = "sm" | "md";
 type Variant = "dark" | "light";
@@ -19,19 +18,35 @@ type NumiWordmarkProps = {
 export default function NumiWordmark({ size = "sm", href, className = "", variant = "dark" }: NumiWordmarkProps) {
   const s = sizes[size];
   const wordmarkColor = variant === "light" ? "text-white" : "text-gray-900";
-  const logoFilter = variant === "light" ? "invert" : "";
+  const bgFill = variant === "light" ? "#ffffff" : "#09090b";
+  const textFill = variant === "light" ? "#09090b" : "#ffffff";
+  const fontSize = Math.round(s.logo * 0.65);
 
   const inner = (
     <span className={`inline-flex items-center gap-2 ${className}`} aria-label="Numi">
-      <Image
-        src="/assets/logo-numi.png"
-        alt="Numi"
+      <svg
         width={s.logo}
         height={s.logo}
-        className={`w-auto object-contain ${logoFilter}`}
-        style={{ height: s.logo }}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-      />
+        style={{ flexShrink: 0 }}
+      >
+        <rect width="32" height="32" rx="8" fill={bgFill} />
+        <text
+          x="16"
+          y="23"
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontSize={fontSize}
+          fontWeight="700"
+          fill={textFill}
+          textAnchor="middle"
+          letterSpacing="-0.5"
+        >
+          N
+        </text>
+      </svg>
       <span className={`${s.wordmark} font-semibold tracking-tight ${wordmarkColor}`}>Numi</span>
     </span>
   );

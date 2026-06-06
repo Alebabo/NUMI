@@ -12,6 +12,7 @@
     "html2canvas": "^1.4.1",
     "lucide-react": "latest",
     "next": "latest",
+    "pptxgenjs": "^4.0.1",
     "react": "latest",
     "react-dom": "latest"
   },

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
+import pptxgen from "pptxgenjs";
 
 type RecapMode = "team" | "rep";
 
@@ -136,6 +137,75 @@ export default function SalesRecapShareAsset() {
 
   function prev() { setIndex((i) => (i - 1 + total) % total); }
   function next() { setIndex((i) => (i + 1) % total); }
+
+  async function exportPptx() {
+    const pptx = new pptxgen();
+    pptx.layout = "LAYOUT_WIDE"; // 16:9
+
+    // Helper: extract a solid color from gradient string (take first hex)
+    function gradientToColor(bg: string): string {
+      const match = bg.match(/#([0-9a-fA-F]{6})/);
+      return match ? match[1] : "1a0533";
+    }
+
+    for (const s of slides) {
+      const slide = pptx.addSlide();
+      const bgColor = gradientToColor(s.bg);
+      slide.background = { color: bgColor };
+
+      // Label pill text
+      slide.addText(s.label.toUpperCase(), {
+        x: 0.4, y: 0.3, w: 8, h: 0.35,
+        fontSize: 9, bold: true, color: "FFFFFF", transparency: 40,
+        charSpacing: 3,
+      });
+
+      let contentY = 1.0;
+
+      if (s.stat) {
+        slide.addText(s.stat, {
+          x: 0.4, y: contentY, w: 9, h: 1.8,
+          fontSize: 96, bold: true, color: "FFFFFF",
+          charSpacing: -2, lineSpacingMultiple: 1,
+        });
+        contentY += 1.9;
+      }
+
+      // Headline
+      const headlineFontSize = !s.stat && !s.items ? 48 : 24;
+      slide.addText(s.headline, {
+        x: 0.4, y: contentY, w: 9, h: s.stat ? 1.0 : 2.5,
+        fontSize: headlineFontSize, bold: true, color: "FFFFFF",
+        lineSpacingMultiple: 1.05, breakLine: true,
+      });
+      contentY += s.stat ? 1.1 : 2.6;
+
+      if (s.items) {
+        const bulletRows = s.items.map((item) => ({ text: item, options: {} }));
+        slide.addText(bulletRows, {
+          x: 0.4, y: contentY, w: 9, h: 2.5,
+          fontSize: 16, bold: false, color: "FFFFFFCC",
+          bullet: { type: "bullet", characterCode: "2022", indent: 10 },
+          lineSpacingMultiple: 1.4,
+        });
+      } else if (s.sub) {
+        slide.addText(s.sub, {
+          x: 0.4, y: contentY, w: 9, h: 1.5,
+          fontSize: 14, color: "FFFFFF", transparency: 45,
+          lineSpacingMultiple: 1.5,
+        });
+      }
+
+      // Footer branding
+      slide.addText("numi", {
+        x: 0.4, y: 6.8, w: 2, h: 0.3,
+        fontSize: 10, bold: true, color: "FFFFFF", transparency: 65,
+        charSpacing: 2,
+      });
+    }
+
+    await pptx.writeFile({ fileName: `numi-recap-${mode}.pptx` });
+  }
 
   async function exportPng() {
     if (exporting) return;
@@ -373,14 +443,23 @@ export default function SalesRecapShareAsset() {
             Next →
           </button>
         </div>
-        <button
-          type="button"
-          onClick={exportPng}
-          disabled={exporting}
-          className="text-xs font-medium text-gray-400 transition-colors hover:text-gray-950 disabled:cursor-wait disabled:opacity-40"
-        >
-          {exporting ? "Rendering…" : "↓ Export"}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={exportPptx}
+            className="text-xs font-medium text-gray-400 transition-colors hover:text-gray-950"
+          >
+            ↓ PPTX
+          </button>
+          <button
+            type="button"
+            onClick={exportPng}
+            disabled={exporting}
+            className="text-xs font-medium text-gray-400 transition-colors hover:text-gray-950 disabled:cursor-wait disabled:opacity-40"
+          >
+            {exporting ? "Rendering…" : "↓ PNG"}
+          </button>
+        </div>
       </div>
     </div>
   );

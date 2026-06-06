@@ -11,6 +11,12 @@ export default function LandingPage() {
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
           <NumiWordmark size="md" href="/" />
           <nav className="flex items-center gap-2">
+            <a
+              href="#marketing"
+              className="inline-flex h-8 items-center justify-center px-3 text-sm font-medium text-gray-500 transition-colors hover:text-gray-950"
+            >
+              Marketing
+            </a>
             <Link
               href="/try"
               target="_blank"
@@ -123,7 +129,7 @@ export default function LandingPage() {
       </section>
 
       {/* Sales Recap */}
-      <section className="border-t border-gray-100 bg-white">
+      <section id="marketing" className="border-t border-gray-100 bg-white">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:py-28">
           <div className="max-w-md">
             <p className="text-xs font-medium uppercase tracking-widest text-gray-400">Viral distribution</p>
