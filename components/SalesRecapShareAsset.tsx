@@ -186,13 +186,13 @@ export default function SalesRecapShareAsset() {
 
         if (s.stat) {
           const statEl = document.createElement("p");
-          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 3.0)}px`, fontWeight: "900", lineHeight: "1", margin: `0 0 ${Math.round(fontSize * 0.15)}px` });
+          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 5.5)}px`, fontWeight: "900", lineHeight: "0.9", margin: `0 0 ${Math.round(fontSize * 0.2)}px`, letterSpacing: "-0.03em" });
           statEl.textContent = s.stat;
           body.appendChild(statEl);
         }
 
         const headlineEl = document.createElement("p");
-        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${fontSize}px`, fontWeight: "800", lineHeight: "1.15", margin: "0", whiteSpace: "pre-line" });
+        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 1.1)}px`, fontWeight: "800", lineHeight: "1.15", margin: "0", whiteSpace: "pre-line" });
         headlineEl.textContent = s.headline;
         body.appendChild(headlineEl);
 
@@ -237,12 +237,12 @@ export default function SalesRecapShareAsset() {
       });
 
       // Big first slide — large font + generous padding
-      container.appendChild(buildSlideEl(allSlides[0], BIG_W, EXPORT_H, 54, 52));
+      container.appendChild(buildSlideEl(allSlides[0], BIG_W, EXPORT_H, 48, 52));
 
       // 3 small slides stacked — smaller font, tighter padding
       const stack = document.createElement("div");
       Object.assign(stack.style, { width: `${SMALL_W}px`, display: "flex", flexDirection: "column", gap: `${GAP}px`, flexShrink: "0" });
-      allSlides.slice(1, 4).forEach((s) => stack.appendChild(buildSlideEl(s, SMALL_W, SMALL_H, 22, 22)));
+      allSlides.slice(1, 4).forEach((s) => stack.appendChild(buildSlideEl(s, SMALL_W, SMALL_H, 18, 20)));
       container.appendChild(stack);
 
       document.body.appendChild(container);
