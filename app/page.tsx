@@ -71,7 +71,7 @@ export default function LandingPage() {
         </div>
 
         {/* Text — left side */}
-        <div className="pointer-events-none absolute right-[23px] top-[-44px] z-[60] select-none">
+        <div className="pointer-events-none absolute right-[23px] top-2 z-[60] select-none">
           <p className="-translate-x-16 -rotate-6 whitespace-nowrap font-mono text-[11px] font-bold text-red-600 sm:text-sm">
             connect your Agent to Numi infra ;)
           </p>
