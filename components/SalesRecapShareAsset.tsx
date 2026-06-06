@@ -192,8 +192,12 @@ export default function SalesRecapShareAsset() {
           body.appendChild(statEl);
         }
 
+        // No stat + no items → headline fills the entire cell
+        const headlineFontSize = !s.stat && !s.items
+          ? Math.round(fontSize * 3.6)
+          : Math.round(fontSize * 1.05);
         const headlineEl = document.createElement("p");
-        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 1.05)}px`, fontWeight: "800", lineHeight: "1.2", margin: "0", whiteSpace: "pre-line" });
+        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${headlineFontSize}px`, fontWeight: "900", lineHeight: "1.05", margin: "0", whiteSpace: "pre-line" });
         headlineEl.textContent = s.headline;
         body.appendChild(headlineEl);
 
