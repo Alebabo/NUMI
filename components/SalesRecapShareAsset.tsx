@@ -186,7 +186,7 @@ export default function SalesRecapShareAsset() {
 
         if (s.stat) {
           const statEl = document.createElement("p");
-          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 2.1)}px`, fontWeight: "900", lineHeight: "1", margin: `0 0 ${Math.round(fontSize * 0.2)}px` });
+          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 3.0)}px`, fontWeight: "900", lineHeight: "1", margin: `0 0 ${Math.round(fontSize * 0.15)}px` });
           statEl.textContent = s.stat;
           body.appendChild(statEl);
         }
@@ -196,6 +196,7 @@ export default function SalesRecapShareAsset() {
         headlineEl.textContent = s.headline;
         body.appendChild(headlineEl);
 
+        // sub-text only on big slide (large fontSize), keep small slides clean
         if (s.items) {
           const ul = document.createElement("ul");
           Object.assign(ul.style, { margin: `${Math.round(fontSize * 0.5)}px 0 0`, padding: "0", listStyle: "none", display: "flex", flexDirection: "column", gap: `${Math.round(fontSize * 0.4)}px` });
@@ -206,9 +207,10 @@ export default function SalesRecapShareAsset() {
             ul.appendChild(li);
           });
           body.appendChild(ul);
-        } else {
+        } else if (fontSize >= 40) {
+          // only render sub on the big slide
           const sub = document.createElement("p");
-          Object.assign(sub.style, { color: "rgba(255,255,255,0.65)", fontSize: `${Math.round(fontSize * 0.6)}px`, lineHeight: "1.5", margin: `${Math.round(fontSize * 0.45)}px 0 0` });
+          Object.assign(sub.style, { color: "rgba(255,255,255,0.55)", fontSize: `${Math.round(fontSize * 0.5)}px`, lineHeight: "1.5", margin: `${Math.round(fontSize * 0.4)}px 0 0` });
           sub.textContent = s.sub;
           body.appendChild(sub);
         }

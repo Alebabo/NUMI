@@ -69,14 +69,8 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* HubSpot integration hint */}
-          <div className="mt-8 flex items-center gap-2">
-            <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={72} height={20} className="h-5 w-auto object-contain" />
-            <span className="text-sm text-gray-500">integration</span>
-          </div>
-
           {/* Trusted by — inline in hero */}
-          <div className="mt-8 flex flex-col gap-4">
+          <div className="mt-10 flex flex-col gap-4">
             <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">Trusted by</p>
             <div className="flex items-center gap-8">
               <Image
@@ -94,6 +88,10 @@ export default function LandingPage() {
                 height={28}
                 className="h-6 w-auto object-contain opacity-50 grayscale"
               />
+            </div>
+            <div className="flex items-center gap-2">
+              <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={72} height={20} className="h-5 w-auto object-contain" />
+              <span className="text-sm text-gray-500">integration</span>
             </div>
           </div>
         </div>

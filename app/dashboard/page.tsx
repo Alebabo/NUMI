@@ -294,6 +294,11 @@ export default function Home() {
   const [teamName, setTeamName] = useState("");
   const [teamReps, setTeamReps] = useState("5");
   const [teamTarget, setTeamTarget] = useState("70");
+  const [showAddTeam, setShowAddTeam] = useState(false);
+  const [editingTeamId, setEditingTeamId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editReps, setEditReps] = useState("");
+  const [editTarget, setEditTarget] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -383,7 +388,6 @@ export default function Home() {
   function addTeam() {
     const cleanName = teamName.trim();
     if (!cleanName) return;
-
     setTeams((current) => [
       ...current,
       {
@@ -397,6 +401,33 @@ export default function Home() {
       }
     ]);
     setTeamName("");
+    setTeamReps("5");
+    setTeamTarget("70");
+    setShowAddTeam(false);
+  }
+
+  function startEdit(team: Team) {
+    setEditingTeamId(team.id);
+    setEditName(team.name);
+    setEditReps(String(team.reps));
+    setEditTarget(String(team.target));
+  }
+
+  function saveEdit() {
+    if (!editingTeamId) return;
+    setTeams((current) =>
+      current.map((t) =>
+        t.id === editingTeamId
+          ? { ...t, name: editName.trim() || t.name, reps: Math.max(Number(editReps) || 1, 1), target: Math.max(Number(editTarget) || 1, 1) }
+          : t
+      )
+    );
+    setEditingTeamId(null);
+  }
+
+  function deleteTeam(id: number) {
+    setTeams((current) => current.filter((t) => t.id !== id));
+    if (editingTeamId === id) setEditingTeamId(null);
   }
 
   async function analyze() {
@@ -666,80 +697,160 @@ export default function Home() {
   function renderTeamView() {
     return (
       <>
-        <SectionHeader eyebrow="Team management" title="Create and monitor teams" description="Managers can add teams and compare performance in numbers and charts." />
-        <BentoGrid>
-          <BentoCard colSpan={4}>
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">New team</p>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight text-gray-900">Add sales team</h2>
-            <div className="mt-5 space-y-3">
-              <label className="block">
-                <span className="text-xs font-medium text-gray-500">Team name</span>
-                <input
-                  value={teamName}
-                  onChange={(event) => setTeamName(event.target.value)}
-                  className="mt-1 h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900"
-                  placeholder="e.g. Enterprise North"
-                />
-              </label>
-              <label className="block">
-                <span className="text-xs font-medium text-gray-500">Reps</span>
-                <input
-                  value={teamReps}
-                  onChange={(event) => setTeamReps(event.target.value)}
-                  type="number"
-                  min="1"
-                  className="mt-1 h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900"
-                />
-              </label>
-              <label className="block">
-                <span className="text-xs font-medium text-gray-500">Monthly call target</span>
-                <input
-                  value={teamTarget}
-                  onChange={(event) => setTeamTarget(event.target.value)}
-                  type="number"
-                  min="1"
-                  className="mt-1 h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900"
-                />
-              </label>
-              <button
-                type="button"
-                onClick={addTeam}
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700"
-              >
-                <Plus size={15} />
-                Create team
-              </button>
-            </div>
-          </BentoCard>
-
-          <BentoCard colSpan={8}>
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Teams</p>
-            <div className="mt-4 overflow-hidden rounded-lg border border-gray-200">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-400">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Team</th>
-                    <th className="px-4 py-3 font-medium">Reps</th>
-                    <th className="px-4 py-3 font-medium">Calls</th>
-                    <th className="px-4 py-3 font-medium">Score</th>
-                    <th className="px-4 py-3 font-medium">Target</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {teams.map((team) => (
-                    <tr key={team.id} className="bg-white">
+        <SectionHeader eyebrow="Team management" title="Teams" />
+        <BentoCard colSpan={12}>
+          <div className="overflow-hidden rounded-lg border border-gray-200">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-400">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Team</th>
+                  <th className="px-4 py-3 font-medium">Reps</th>
+                  <th className="px-4 py-3 font-medium">Calls</th>
+                  <th className="px-4 py-3 font-medium">Score</th>
+                  <th className="px-4 py-3 font-medium">Target</th>
+                  <th className="px-4 py-3 font-medium"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {teams.map((team) =>
+                  editingTeamId === team.id ? (
+                    <tr key={team.id} className="bg-blue-50/40">
+                      <td className="px-3 py-2">
+                        <input
+                          autoFocus
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="h-8 w-full rounded border border-gray-300 bg-white px-2 text-sm text-gray-900 focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          type="number"
+                          min="1"
+                          value={editReps}
+                          onChange={(e) => setEditReps(e.target.value)}
+                          className="h-8 w-16 rounded border border-gray-300 bg-white px-2 text-sm text-gray-900 focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-2 font-mono text-gray-400">{team.calls}</td>
+                      <td className="px-4 py-2 font-mono text-gray-400">{team.score.toFixed(1)}</td>
+                      <td className="px-3 py-2">
+                        <input
+                          type="number"
+                          min="1"
+                          value={editTarget}
+                          onChange={(e) => setEditTarget(e.target.value)}
+                          className="h-8 w-16 rounded border border-gray-300 bg-white px-2 text-sm text-gray-900 focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={saveEdit}
+                            className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-900 text-white transition-colors hover:bg-gray-700"
+                          >
+                            <Check size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingTeamId(null)}
+                            className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:text-gray-900"
+                          >
+                            <X size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteTeam(team.id)}
+                            className="flex h-7 w-7 items-center justify-center rounded-md border border-red-100 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                          >
+                            <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5"><path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5.5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/><path fillRule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clipRule="evenodd"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={team.id} className="group bg-white hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium text-gray-900">{team.name}</td>
                       <td className="px-4 py-3 font-mono text-gray-600">{team.reps}</td>
                       <td className="px-4 py-3 font-mono text-gray-600">{team.calls}</td>
                       <td className="px-4 py-3 font-mono text-gray-900">{team.score.toFixed(1)}</td>
                       <td className="px-4 py-3 text-gray-600">{Math.round((team.calls / team.target) * 100)}%</td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => startEdit(team)}
+                          className="invisible text-xs font-medium text-gray-400 transition-colors hover:text-gray-900 group-hover:visible"
+                        >
+                          Edit
+                        </button>
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Add team — collapsed by default */}
+          {showAddTeam ? (
+            <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_80px_80px_auto]">
+                <input
+                  autoFocus
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addTeam()}
+                  className="h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
+                  placeholder="Team name"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  value={teamReps}
+                  onChange={(e) => setTeamReps(e.target.value)}
+                  className="h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
+                  placeholder="Reps"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  value={teamTarget}
+                  onChange={(e) => setTeamTarget(e.target.value)}
+                  className="h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
+                  placeholder="Target"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={addTeam}
+                    className="h-9 rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddTeam(false)}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:text-gray-900"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-gray-400">Name · Reps · Monthly call target</p>
             </div>
-          </BentoCard>
-        </BentoGrid>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowAddTeam(true)}
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 py-2.5 text-xs font-medium text-gray-400 transition-colors hover:border-gray-400 hover:text-gray-700"
+            >
+              <Plus size={13} />
+              Add team
+            </button>
+          )}
+        </BentoCard>
+
         <BentoGrid className="mt-4">
           {teams.map((team) => (
             <BentoCard key={team.id} colSpan={4}>
