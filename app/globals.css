@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f9fafb;
+  --foreground: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #f9fafb, 0 0 0 4px #3b82f6;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.numi-share-asset {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background-color: #fcfcfc;
+  background-image: url("/assets/numi-wrapped-background.png");
+  background-position: center;
+  background-size: cover;
+  border: 1px solid #111111;
+  box-sizing: border-box;
+  color: #000000;
+  padding: 40px;
+}
+
+.numi-share-asset::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+
+.numi-share-asset::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  pointer-events: none;
+}
+
+.numi-share-asset > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes recap-pulse {
+  0%,
+  58% {
+    opacity: 1;
+  }
+
+  59%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
