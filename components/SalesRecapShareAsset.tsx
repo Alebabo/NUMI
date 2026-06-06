@@ -183,16 +183,17 @@ export default function SalesRecapShareAsset() {
         pill.innerHTML = `<span style="color:#fff;font-size:${Math.round(fontSize * 0.45)}px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">${s.label}</span>`;
 
         const body = document.createElement("div");
+        Object.assign(body.style, { display: "flex", flexDirection: "column", gap: `${Math.round(fontSize * 0.4)}px` });
 
         if (s.stat) {
           const statEl = document.createElement("p");
-          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 5.5)}px`, fontWeight: "900", lineHeight: "0.9", margin: `0 0 ${Math.round(fontSize * 0.2)}px`, letterSpacing: "-0.03em" });
+          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 4.8)}px`, fontWeight: "900", lineHeight: "1", margin: "0", letterSpacing: "-0.03em" });
           statEl.textContent = s.stat;
           body.appendChild(statEl);
         }
 
         const headlineEl = document.createElement("p");
-        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 1.1)}px`, fontWeight: "800", lineHeight: "1.15", margin: "0", whiteSpace: "pre-line" });
+        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 1.05)}px`, fontWeight: "800", lineHeight: "1.2", margin: "0", whiteSpace: "pre-line" });
         headlineEl.textContent = s.headline;
         body.appendChild(headlineEl);
 
