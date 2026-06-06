@@ -19,7 +19,7 @@ type NumiWordmarkProps = {
 export default function NumiWordmark({ size = "sm", href, className = "", variant = "dark" }: NumiWordmarkProps) {
   const s = sizes[size];
   const wordmarkColor = variant === "light" ? "text-white" : "text-gray-900";
-  const logoFilter = variant === "light" ? "brightness-0 invert" : "brightness-0";
+  const logoFilter = variant === "light" ? "invert" : "";
 
   const inner = (
     <span className={`inline-flex items-center gap-2 ${className}`} aria-label="Numi">
