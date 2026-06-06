@@ -11,3 +11,5 @@ dev-server.log
 dev-server-error.log
 dev-server-*.log
 .DS_Store
+
+.vercel

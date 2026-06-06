@@ -21,6 +21,7 @@ import { BentoGrid } from "../../components/layout/BentoGrid";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { ScoreBadge } from "../../components/ui/ScoreBadge";
 import { SalesRecapExportAsset, SalesRecapExportPayload } from "../../components/SalesRecapExportAsset";
+import WebhookConnectButton from "../../components/WebhookConnectButton";
 
 type Finding = {
   title: string;
@@ -43,29 +44,29 @@ type CallRecord = {
 
 const mockCalls: CallRecord[] = [
   {
-    id: "c001", rep: "Anna Müller", repId: "anna", date: "2026-06-05", duration: "32 min",
-    numiScore: 8.1, status: "analyzed",
-    transcript: `[00:01] rep: Guten Tag Herr Schmidt, danke dass Sie sich Zeit nehmen.\n[00:15] prospect: Kein Problem, ich habe aber nur 20 Minuten.\n[00:18] rep: Verstehe. Darf ich direkt fragen — was hat Sie dazu bewogen, diesen Termin anzunehmen?\n[01:02] prospect: Wir haben intern diskutiert ob wir unsere Analyse-Prozesse automatisieren sollen.\n[01:15] rep: Welche Prozesse konkret? Geht es mehr um Reporting oder um operative Entscheidungen?\n[02:00] prospect: Hauptsächlich Reporting, aber wenn das gut funktioniert, auch Entscheidungen.\n[02:20] rep: Wie lange dauert ein typischer Reporting-Zyklus bei Ihnen heute?\n[03:10] prospect: Ungefähr drei Tage manuell.\n[03:15] rep: Drei Tage — und wie oft kommt es vor, dass eine Entscheidung auf diesen Report wartet?\n[04:00] prospect: Öfter als mir lieb ist. Letzte Woche zweimal.`
+    id: "c001", rep: "Anna Müller", repId: "anna", date: "2026-06-05", duration: "34 min",
+    numiScore: 8.4, status: "analyzed",
+    transcript: `[00:01] rep: Guten Morgen Herr Keller, danke für die Zeit. Sie hatten im Formular "Forecast-Genauigkeit" angeklickt. Was ist aktuell der Auslöser?\n[00:18] prospect: Wir forecasten noch aus Bauchgefühl und Excel. Der Vorstand fragt jede Woche nach, warum Commit und Ist auseinanderlaufen.\n[00:34] rep: Wie groß ist die Abweichung in einem normalen Quartal?\n[00:52] prospect: Zwischen 18 und 25 Prozent. Im letzten Quartal sogar 31.\n[01:05] rep: Wer muss am Ende unterschreiben, wenn wir das Problem lösen?\n[01:18] prospect: CRO und Finance. Ich bereite die Empfehlung vor.\n[01:31] rep: Dann sollten wir heute klären, ob die Datenbasis reicht, und im nächsten Termin CRO plus Finance dazunehmen. Passt das?\n[01:45] prospect: Ja, wenn Sie zeigen können, dass es nicht nur ein weiteres Dashboard ist.\n[01:57] rep: Fair. Welche zwei Reports ignoriert Ihr Team heute, weil sie zu spät oder zu unzuverlässig sind?`
   },
   {
-    id: "c002", rep: "Ben Richter", repId: "ben", date: "2026-06-04", duration: "18 min",
-    numiScore: 5.4, status: "analyzed",
-    transcript: `[00:01] rep: Hallo! Super dass wir uns sprechen können, ich freue mich wirklich darauf.\n[00:20] prospect: Mhm. Was genau wollten Sie mir zeigen?\n[00:28] rep: Also wir haben ein tolles Produkt das wirklich vielen Unternehmen geholfen hat...\n[01:45] prospect: Ja aber was kostet das?\n[01:50] rep: Das ist sehr flexibel, wir finden sicher etwas Passendes für Sie.\n[02:10] prospect: Können Sie mir eine Zahl nennen?\n[02:15] rep: Das hängt sehr von Ihren Anforderungen ab. Was ist denn Ihr Budget?\n[03:00] prospect: Ich frage Sie.\n[03:05] rep: Wir starten bei etwa 800€ monatlich, aber da gibt es viele Möglichkeiten nach oben und unten.`
+    id: "c002", rep: "Ben Richter", repId: "ben", date: "2026-06-04", duration: "19 min",
+    numiScore: 4.8, status: "analyzed",
+    transcript: `[00:01] rep: Hi Frau Stein, ich zeige Ihnen heute kurz, wie Numi Sales Calls bewertet.\n[00:14] prospect: Ich sage direkt: Wir haben Gong und wollen nichts ersetzen.\n[00:21] rep: Klar, das hören wir öfter. Numi ist auch nicht einfach Gong.\n[00:38] prospect: Was heißt das konkret?\n[00:44] rep: Wir sind ehrlicher in der Bewertung und geben bessere Coaching-Hinweise.\n[01:05] prospect: Was kostet das?\n[01:10] rep: Das hängt sehr von der Teamgröße ab, aber wir finden sicher ein Modell.\n[01:24] prospect: Ich brauche eine Größenordnung.\n[01:31] rep: Vielleicht starten wir erst mit einem Pilot, dann schauen wir später auf Budget.\n[01:52] prospect: Ohne Preis kann ich intern nichts einordnen.\n[02:01] rep: Verstehe. Dann würde ich Ihnen ein paar Unterlagen schicken.`
   },
   {
-    id: "c003", rep: "Clara Bauer", repId: "clara", date: "2026-06-03", duration: "41 min",
-    numiScore: 7.3, status: "analyzed",
-    transcript: `[00:01] rep: Frau Hoffmann, ich habe mir Ihre letzten Quartalszahlen angesehen — Ihr Wachstum ist beeindruckend.\n[00:30] prospect: Danke. Wir wachsen schnell, das bringt aber auch Probleme mit sich.\n[00:38] rep: Welche Probleme sehen Sie konkret?\n[01:10] prospect: Die Onboarding-Zeit für neue Reps. Aktuell sechs Monate bis zur vollen Produktivität.\n[01:20] rep: Sechs Monate — was ist der teuerste Teil davon?\n[02:00] prospect: Wahrscheinlich die ersten drei, wenn sie noch nichts abschließen aber trotzdem kosten.\n[02:15] rep: Wenn Sie diese drei Monate auf sechs Wochen verkürzen könnten, was wäre das wert?\n[03:00] prospect: Das würde uns pro Rep etwa 40.000€ sparen.\n[03:10] rep: Dann sollten wir genau dort anfangen.`
+    id: "c003", rep: "Clara Bauer", repId: "clara", date: "2026-06-03", duration: "42 min",
+    numiScore: 7.6, status: "analyzed",
+    transcript: `[00:01] rep: Frau Hoffmann, Sie haben 22 neue Reps geplant. Was passiert, wenn Ramp-up weiter sechs Monate dauert?\n[00:19] prospect: Dann verpassen wir das Neukunden-Ziel. Wir verlieren im ersten Halbjahr ungefähr 1,2 Millionen Pipeline.\n[00:36] rep: Wer spürt den Schmerz zuerst: Sales Enablement, CRO oder Finance?\n[00:48] prospect: CRO. Enablement bekommt den Druck, aber der CRO muss es erklären.\n[01:02] rep: Dann ist der Business Case nicht "Training", sondern schnellere Produktivität. Stimmen Sie zu?\n[01:11] prospect: Ja, genau.\n[01:18] rep: Welche drei Call-Situationen entscheiden aktuell, ob ein neuer Rep hängen bleibt?\n[01:35] prospect: Discovery, Pricing und Umgang mit Procurement.\n[01:44] rep: Dann würde ich im Pilot genau diese drei Skills messen und nach vier Wochen gegen Ramp-Zeit und Stage-Conversion halten.`
   },
   {
-    id: "c004", rep: "Demo Rep", repId: "demo", date: "2026-06-02", duration: "27 min",
-    numiScore: null, status: "pending",
-    transcript: ""
+    id: "c004", rep: "Luca Schneider", repId: "demo", date: "2026-06-02", duration: "3 min",
+    numiScore: 0.0, status: "analyzed",
+    transcript: `[00:01] rep: Hallo, ich rufe von Mercedes-Benz Transporter an. Ich suche Ihren Chef.\n[00:09] prospect: Der ist gerade nicht im Haus.\n[00:14] rep: Dann mache ich Sie kurz zu meiner Verbündeten. Wie stehen meine Chancen, ihm Transporter zu verkaufen?\n[00:29] prospect: Ich glaube nicht so. Wir haben, glaube ich, Skoda.\n[00:41] rep: Haben Sie grundsätzlich Transporter im Fuhrpark?\n[00:45] prospect: Ja.\n[00:49] rep: Wie viele ungefähr?\n[00:53] prospect: Zehn.\n[00:58] rep: Super, dann war das ja der Beginn einer wundervollen Freundschaft. Ich rufe um 14 Uhr nochmal an.\n[01:08] prospect: Ja, versuchen Sie es dann.`
   },
   {
-    id: "c005", rep: "Anna Müller", repId: "anna", date: "2026-06-01", duration: "14 min",
-    numiScore: 6.2, status: "analyzed",
-    transcript: `[00:01] rep: Guten Tag, haben Sie kurz Zeit?\n[00:10] prospect: Was geht es um?\n[00:12] rep: Wir bieten eine Lösung für Ihr Vertriebsteam an.\n[00:45] prospect: Was genau?\n[00:50] rep: Call-Analyse und Coaching-Unterstützung für Sales-Teams.\n[01:20] prospect: Wir haben schon etwas ähnliches.\n[01:25] rep: Ah, was nutzen Sie aktuell?\n[02:00] prospect: Gong.\n[02:05] rep: Okay, und was fehlt Ihnen bei Gong?\n[02:30] prospect: Eigentlich nichts Gravierendes.`
+    id: "c005", rep: "Anna Müller", repId: "anna", date: "2026-06-01", duration: "16 min",
+    numiScore: 6.5, status: "analyzed",
+    transcript: `[00:01] rep: Guten Tag Herr Yilmaz, Sie nutzen aktuell Gong, richtig?\n[00:10] prospect: Ja, und grundsätzlich sind wir zufrieden.\n[00:16] rep: Was wäre ein Grund, trotzdem etwas daneben zu evaluieren?\n[00:27] prospect: Unsere Manager schauen zu wenig Calls. Es bleibt viel liegen.\n[00:39] rep: Wie viele Calls werden pro Woche wirklich reviewt?\n[00:48] prospect: Vielleicht fünf Prozent.\n[00:55] rep: Und ab welcher Quote hätten Sie das Gefühl, Coaching wird messbar?\n[01:08] prospect: Eher zwanzig bis dreißig Prozent.\n[01:18] rep: Dann könnte Numi ergänzen, nicht ersetzen. Ich würde gern mit Ihrem Enablement Lead prüfen, ob wir die Review-Quote in vier Wochen hochziehen können.`
   },
   {
     id: "c006", rep: "Ben Richter", repId: "ben", date: "2026-05-31", duration: "22 min",
@@ -111,12 +112,13 @@ const analyzeLogs = [
   "[score]       compute anti-sycophant index ................. done"
 ];
 
-const repTrend = [5.8, 6.2, 6.4, 6.9, 7.3, 7.1, 7.8, 8.1];
+const repTrend = [5.4, 5.8, 6.1, 6.5, 6.9, 7.2, 7.0, 7.6];
 
 const initialTeams: Team[] = [
-  { id: 1, name: "DACH Mid-Market", reps: 6, target: 78, score: 7.6, calls: 84, trend: [6.2, 6.6, 6.9, 7.1, 7.4, 7.6] },
-  { id: 2, name: "Enterprise West", reps: 4, target: 65, score: 8.2, calls: 57, trend: [7.5, 7.4, 7.8, 8.0, 8.1, 8.2] },
-  { id: 3, name: "SMB Growth", reps: 8, target: 92, score: 6.9, calls: 126, trend: [6.8, 6.5, 6.7, 6.8, 7.0, 6.9] }
+  { id: 1, name: "DACH Mid-Market", reps: 7, target: 95, score: 7.4, calls: 88, trend: [6.4, 6.7, 6.8, 7.0, 7.2, 7.4] },
+  { id: 2, name: "Enterprise Manufacturing", reps: 5, target: 68, score: 8.1, calls: 61, trend: [7.3, 7.5, 7.7, 7.9, 8.0, 8.1] },
+  { id: 3, name: "SMB Growth", reps: 9, target: 120, score: 6.3, calls: 132, trend: [6.7, 6.4, 6.2, 6.1, 6.4, 6.3] },
+  { id: 4, name: "Expansion DACH", reps: 4, target: 54, score: 7.8, calls: 49, trend: [7.0, 7.1, 7.4, 7.5, 7.7, 7.8] }
 ];
 
 function formatBytes(bytes: number) {
@@ -180,10 +182,10 @@ function MetricChart({ values, tone = "blue" }: { values: number[]; tone?: "blue
 }
 
 const SKILL_LINES = [
-  { key: "objection", label: "Objection control", color: "#059669", data: [58, 62, 65, 68, 71, 71] },
-  { key: "pricing",   label: "Pricing discipline", color: "#2563eb", data: [55, 57, 60, 61, 63, 64] },
-  { key: "signals",   label: "Buying signals",    color: "#7c3aed", data: [72, 74, 77, 80, 81, 82] },
-  { key: "nextstep",  label: "Next-step quality", color: "#d97706", data: [66, 68, 70, 74, 77, 78] },
+  { key: "objection", label: "Objection control", color: "#059669", data: [54, 58, 62, 65, 67, 69] },
+  { key: "pricing",   label: "Pricing discipline", color: "#2563eb", data: [49, 51, 55, 56, 59, 61] },
+  { key: "signals",   label: "Buying signals",    color: "#7c3aed", data: [64, 68, 71, 73, 76, 78] },
+  { key: "nextstep",  label: "Next-step quality", color: "#d97706", data: [57, 60, 63, 66, 68, 70] },
 ];
 
 function MultiLineChart() {
@@ -1015,9 +1017,9 @@ export default function Home() {
       <>
         <SectionHeader eyebrow="My performance" title="Your sales scorecard" />
         <BentoGrid>
-          <KpiCard title="Total calls" value="23" subtitle="All time" colSpan={4} />
-          <KpiCard title="Calls this week" value="5" subtitle="↑ 2 vs last week" colSpan={4} />
-          <KpiCard title="Avg score" value="74" subtitle="out of 100" colSpan={4} />
+          <KpiCard title="Total calls" value="31" subtitle="Reviewed this quarter" colSpan={4} />
+          <KpiCard title="Calls this week" value="7" subtitle="↑ 3 vs last week" colSpan={4} />
+          <KpiCard title="Avg score" value="68" subtitle="out of 100" colSpan={4} />
         </BentoGrid>
 
         <BentoGrid className="mt-4">
@@ -1128,7 +1130,8 @@ export default function Home() {
     <DashboardShell role={role} onRoleChange={changeRole} activeNav={activeNav} onNavChange={setActiveNav}>
       <div className="mx-auto max-w-6xl">
         {/* Wrapped button — always visible top-right */}
-        <div className="mb-5 flex justify-end">
+        <div className="mb-5 flex justify-end gap-2">
+          <WebhookConnectButton variant="light" />
           <button
             type="button"
             onClick={() => setShowWrapped(true)}

@@ -1,9 +1,9 @@
 "use client";
 
-import Script from "next/script";
 import Link from "next/link";
-import { useState } from "react";
-import { AlertCircle, ArrowLeft, ClipboardList, RefreshCcw, Sparkles } from "lucide-react";
+import { ConversationProvider, useConversationControls, useConversationMode, useConversationStatus } from "@elevenlabs/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AlertCircle, ArrowLeft, ClipboardList, Phone, PhoneOff, RefreshCcw, Sparkles } from "lucide-react";
 import NumiWordmark from "../../components/NumiWordmark";
 
 type Finding = {
@@ -21,12 +21,146 @@ type TryAnalysis = {
   findings: Finding[];
 };
 
+type LiveTranscriptLine = {
+  speaker: "rep" | "prospect";
+  text: string;
+};
+
+const VOICE_AGENT_MAX_SECONDS = 25;
+
+function renderLiveTranscript(lines: LiveTranscriptLine[]) {
+  return lines.map((line) => `${line.speaker}: ${line.text}`).join("\n");
+}
+
+function VoiceAgentControls({
+  agentId,
+  hasTranscript
+}: {
+  agentId: string;
+  hasTranscript: boolean;
+}) {
+  const { startSession, endSession } = useConversationControls();
+  const { status, message } = useConversationStatus();
+  const { isListening, isSpeaking } = useConversationMode();
+  const [secondsLeft, setSecondsLeft] = useState(VOICE_AGENT_MAX_SECONDS);
+  const endSessionRef = useRef(endSession);
+  const isConnected = status === "connected";
+  const isBusy = status === "connecting" || status === "connected";
+
+  useEffect(() => {
+    endSessionRef.current = endSession;
+  }, [endSession]);
+
+  useEffect(() => {
+    if (!isConnected) {
+      setSecondsLeft(VOICE_AGENT_MAX_SECONDS);
+      return;
+    }
+
+    setSecondsLeft(VOICE_AGENT_MAX_SECONDS);
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+      const remainingSeconds = Math.max(0, VOICE_AGENT_MAX_SECONDS - elapsedSeconds);
+      setSecondsLeft(remainingSeconds);
+
+      if (remainingSeconds <= 0) {
+        window.clearInterval(timer);
+        endSessionRef.current();
+      }
+    }, 250);
+
+    return () => window.clearInterval(timer);
+  }, [isConnected]);
+
+  async function startCall() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+    } catch {
+      // The SDK will surface the final permission error if microphone access still fails.
+    }
+    startSession({ agentId });
+  }
+
+  return (
+    <div className="mt-8 rounded-xl border border-gray-200 bg-white px-4 py-3.5 shadow-sm">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm-2 6a2 2 0 104 0V4a1 1 0 10-2 0v6zm9 0a5 5 0 01-10 0H3a7 7 0 0014 0h-3z"/></svg>
+        </span>
+        <div className="min-w-0 flex-1 text-sm">
+          <p className="font-medium text-gray-900">
+            {isConnected ? (isSpeaking ? "Agent is speaking" : isListening ? "Listening live" : "Call is live") : "Voice agent is ready"}
+          </p>
+          <p className="text-gray-500">
+            {hasTranscript ? "Transcript is being written into the analysis box." : "Start a call and Numi will generate the transcript live."}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            {isConnected ? `Auto hang-up in ${secondsLeft}s to save tokens.` : `Calls are capped at ${VOICE_AGENT_MAX_SECONDS}s to save tokens.`}
+          </p>
+          {message ? <p className="mt-1 text-xs text-red-600">{message}</p> : null}
+        </div>
+        {isConnected ? (
+          <button
+            type="button"
+            onClick={endSession}
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-red-600 px-3 text-sm font-medium text-white transition-colors hover:bg-red-700"
+          >
+            <PhoneOff size={14} />
+            Hang up
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={startCall}
+            disabled={isBusy}
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-gray-950 px-3 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
+          >
+            <Phone size={14} />
+            Start call
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function TryPage() {
+  const agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
+  const [liveTranscript, setLiveTranscript] = useState<LiveTranscriptLine[]>([]);
   const [transcript, setTranscript] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [analysis, setAnalysis] = useState<TryAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const liveTranscriptText = useMemo(() => renderLiveTranscript(liveTranscript), [liveTranscript]);
+
+  const appendLiveMessage = useCallback((message: { role: "user" | "agent"; message: string }) => {
+    const text = message.message.trim();
+    if (!text) return;
+
+    const nextLine: LiveTranscriptLine = {
+      speaker: message.role === "agent" ? "prospect" : "rep",
+      text
+    };
+
+    setLiveTranscript((current) => {
+      const last = current[current.length - 1];
+      if (last?.speaker === nextLine.speaker && last.text === nextLine.text) return current;
+
+      const next = [...current, nextLine];
+      setTranscript(renderLiveTranscript(next));
+      return next;
+    });
+  }, []);
+
+  const resetLiveTranscript = useCallback(() => {
+    setLiveTranscript([]);
+    setTranscript("");
+    setAnalysis(null);
+    setError(null);
+  }, []);
 
   async function analyzeTranscript() {
     const cleanTranscript = transcript.trim();
@@ -73,7 +207,6 @@ export default function TryPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f7f5] text-gray-950">
-      <Script src="https://unpkg.com/@elevenlabs/convai-widget-embed" strategy="afterInteractive" />
       <header className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5 sm:px-8">
         <NumiWordmark size="md" href="/" />
         <Link
@@ -100,19 +233,24 @@ export default function TryPage() {
             pressure, and ask for a concrete follow-up.
           </div>
 
-          {/* Widget hint */}
-          <div className="mt-8 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5 shadow-sm">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
-              <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm-2 6a2 2 0 104 0V4a1 1 0 10-2 0v6zm9 0a5 5 0 01-10 0H3a7 7 0 0014 0h-3z"/></svg>
-            </span>
-            <div className="min-w-0 flex-1 text-sm">
-              <p className="font-medium text-gray-900">Voice agent is live</p>
-              <p className="text-gray-500">Open the chat widget in the <span className="font-medium text-gray-700">bottom-right corner</span> to start your call.</p>
+          {agentId ? (
+            <ConversationProvider
+              agentId={agentId}
+              onConnect={resetLiveTranscript}
+              onDisconnect={() => {
+                if (liveTranscriptText) setTranscript(liveTranscriptText);
+              }}
+              onMessage={appendLiveMessage}
+              onError={(message) => setError(message)}
+            >
+              <VoiceAgentControls agentId={agentId} hasTranscript={Boolean(liveTranscript.length)} />
+            </ConversationProvider>
+          ) : (
+            <div className="mt-8 rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-sm shadow-sm">
+              <p className="font-medium text-gray-900">Voice agent is not configured</p>
+              <p className="mt-1 text-gray-500">Set NEXT_PUBLIC_ELEVENLABS_AGENT_ID in .env.local to enable live calls.</p>
             </div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5 shrink-0 translate-y-1 text-gray-300">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+          )}
         </div>
 
         <div className="grid gap-5">
@@ -122,16 +260,28 @@ export default function TryPage() {
               <h2 className="text-sm font-semibold tracking-tight text-gray-950">Analyze this call</h2>
             </div>
             <p className="text-sm leading-7 text-gray-600">
-              After the call, paste the transcript here to run the Anti-Sycophant Engine.{" "}
+              After the call, the live transcript appears here automatically.{" "}
               <span className="font-medium text-gray-800">Or skip the voice call entirely</span> — type directly below to save tokens.
+            </p>
+
+            <p className="mt-2 text-xs leading-5 text-gray-500">
+              Depending on the script length, analysis can take up to 20 seconds.
             </p>
 
             <textarea
               value={transcript}
-              onChange={(event) => setTranscript(event.target.value)}
+              onChange={(event) => {
+                setTranscript(event.target.value);
+                setLiveTranscript([]);
+              }}
               className="mt-4 min-h-40 w-full resize-y border border-gray-200 bg-[#fbfbfa] p-4 font-mono text-xs leading-6 text-gray-800 transition-colors placeholder:text-gray-400 focus:border-gray-400"
               placeholder="[00:00] prospect: Hi, I have five minutes. What exactly does Numi do?&#10;[00:05] rep: Numi gives sales teams honest call feedback..."
             />
+            {liveTranscript.length ? (
+              <p className="mt-2 text-xs leading-5 text-emerald-700">
+                Live transcript active. When you hang up, this text stays here and is ready to analyze.
+              </p>
+            ) : null}
 
             {loading ? (
               <div className="mt-4" aria-label="Try call analysis progress">

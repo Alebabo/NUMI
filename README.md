@@ -74,6 +74,18 @@ NEXT_PUBLIC_ELEVENLABS_AGENT_ID=  # ElevenLabs Conversational AI agent ID
 
 ## Jury Evaluation Criteria
 
+### Hackathon rubric alignment
+Numi is built to read as a real startup wedge, not a generic AI wrapper:
+
+| Rubric criterion | Numi signal |
+|---|---|
+| Problem and customer clarity | Specific buyer: DACH B2B sales leaders, enablement managers, and frontline sales managers who cannot review enough calls to coach reps consistently. Specific pain: missed objections, weak price discipline, vague next steps, and delayed feedback after sales calls. |
+| Market and business potential | Sales coaching and conversation intelligence are established budget categories, but Numi enters with a narrow wedge: honest, evidence-anchored call scoring for teams that already run sales calls but do not trust generic AI summaries. The buyer path is CRM-connected pilots for sales teams using HubSpot. |
+| Product execution and demo | The prototype has live voice intake, transcript analysis, a dashboard, role-based manager/rep views, team tracking, HubSpot sync signaling, and shareable Sales Wrapped exports. It demonstrates the core workflow end to end. |
+| AI-native leverage and technical approach | AI is the core product capability: ElevenLabs captures/transcribes calls, Qwen evaluates behavioral sales dimensions, and the Anti-Sycophant Engine uses adversarial critique to reduce polite but useless feedback. |
+| Evidence, insight, and founder edge | The product is grounded in a concrete insight: generic LLMs often reward friendly calls even when no qualified pipeline was created. Numi flags cited transcript evidence instead of giving motivational summaries. |
+| Pitch clarity | One-sentence pitch: Numi helps DACH sales managers turn every call into honest, evidence-backed coaching because today managers review too few calls and reps repeat the same mistakes. |
+
 ### ElevenLabs integration
 Numi uses ElevenLabs in two ways: the Conversational AI agent handles live voice intake (the primary call capture interface), and Scribe v2 handles transcription. The voice agent is embedded directly in the product as a persistent widget — reps interact with it the same way they'd interact with a customer. No friction, no file uploads. ElevenLabs is not a demo feature here; it is the core input layer.
 

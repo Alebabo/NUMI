@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import NumiWordmark from "../components/NumiWordmark";
 import SalesRecapShareAsset from "../components/SalesRecapShareAsset";
+import WebhookConnectButton from "../components/WebhookConnectButton";
 
 export default function LandingPage() {
   return (
@@ -11,6 +12,12 @@ export default function LandingPage() {
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
           <NumiWordmark size="md" href="/" logoOpacity={0.4} />
           <nav className="flex items-center gap-2">
+            <a
+              href="#comparison"
+              className="inline-flex h-8 items-center justify-center px-3 text-sm font-medium text-gray-500 transition-colors hover:text-gray-950"
+            >
+              OpenAi vs. Numi
+            </a>
             <a
               href="#marketing"
               className="inline-flex h-8 items-center justify-center px-3 text-sm font-medium text-gray-500 transition-colors hover:text-gray-950"
@@ -33,6 +40,7 @@ export default function LandingPage() {
             >
               Go to Platform
             </Link>
+            <WebhookConnectButton />
           </nav>
         </div>
       </header>
@@ -63,11 +71,22 @@ export default function LandingPage() {
         </div>
 
         {/* Text — left side */}
+        <div className="pointer-events-none absolute right-[23px] top-[-44px] z-[60] select-none">
+          <p className="-translate-x-16 -rotate-6 whitespace-nowrap font-mono text-[11px] font-bold text-red-600 sm:text-sm">
+            connect your Agent to Numi infra ;)
+          </p>
+          <svg viewBox="0 0 154 58" fill="none" className="-mt-1 h-14 w-36 text-red-600 sm:w-40" aria-hidden="true">
+            <path d="M8 49 C42 26, 86 13, 136 8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M136 8 C125 5, 116 7, 108 13" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M136 8 C128 16, 124 24, 122 35" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
         <div className="relative z-10 max-w-[52%] lg:max-w-[48%]">
           <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-gray-950 sm:text-6xl lg:text-[76px]">
-            The <span style={{ background: "linear-gradient(90deg, #b8860b, #ffd700, #b8860b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>No.1</span> Sales Coach<br /> that doesn&apos;t lie.
+            The <span style={{ background: "linear-gradient(90deg, #b8860b, #ffd700, #b8860b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>No.1</span> Sales Coach<br /> that <span className="underline decoration-gray-950 decoration-4 underline-offset-8">doesn&apos;t lie</span>.
           </h1>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col items-start gap-3 sm:flex-row">
             <Link
               href="/dashboard"
               target="_blank"
@@ -107,10 +126,90 @@ export default function LandingPage() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={72} height={20} className="h-5 w-auto object-contain" />
+              <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={104} height={30} className="h-7 w-auto object-contain" />
               <span className="text-sm text-gray-500">integration</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* OpenAi vs Numi */}
+      <section id="comparison" className="border-t border-gray-100 bg-white">
+        <div className="mx-auto flex min-h-[calc(100vh-1px)] w-full max-w-6xl flex-col justify-center px-5 py-10 sm:px-8 lg:py-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">OpenAi vs. Numi</p>
+            <h2 className="mt-3 text-2xl font-black leading-tight tracking-tight text-gray-950 sm:text-3xl">
+              Same transcript. Very different truth.
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-gray-500">
+              OpenAI read the gatekeeper call as charming and gave it a passing score. Numi ran the same call through
+              the Anti-Sycophant Engine and treated charm as irrelevant unless it moved the deal.
+            </p>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 gap-px bg-gray-200 text-sm md:grid-cols-2">
+            <div className="bg-[#fbfbfa] p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">Scenario</p>
+              <p className="mt-1.5 leading-5 text-gray-600">
+                A Mercedes-Benz Transporter rep cold-calls a gatekeeper while the decision-maker is out. The goal is to
+                understand fleet potential and secure a meaningful callback.
+              </p>
+            </div>
+            <div className="bg-[#fbfbfa] p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">Transcript in short</p>
+              <p className="mt-1.5 leading-5 text-gray-600">
+                The rep builds rapport, learns there are roughly ten vehicles and hears Skoda as the current brand. A
+                14:00 callback is booked, but the buyer, agenda and qualification criteria stay vague.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 border border-gray-200 md:grid-cols-2">
+            <div className="border-b border-gray-200 p-4 md:border-b-0 md:border-r lg:p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">Generic LLM</p>
+                  <h3 className="mt-2 text-lg font-semibold text-gray-950">ChatGPT</h3>
+                </div>
+                <p className="font-mono text-2xl font-semibold leading-none text-red-600">7/10</p>
+              </div>
+              <p className="mt-3 text-sm leading-5 text-gray-500">
+                Praised rapport, humor, persistence and the booked callback. The critique stayed mostly style-level:
+                fewer jokes, clearer benefit, more structure, cleaner ending.
+              </p>
+              <div className="mt-4 border-t border-gray-100 pt-3">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">What it missed</p>
+                <ul className="mt-2 space-y-1.5 text-sm leading-5 text-gray-600">
+                  <li>Did not penalize that the decision-maker was never qualified.</li>
+                  <li>Did not test whether the 14:00 callback had an agenda or buyer commitment.</li>
+                  <li>Accepted charm as evidence of sales quality.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-[#fafafa] p-4 lg:p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">Anti-Sycophant Engine</p>
+                  <h3 className="mt-2 text-lg font-semibold text-gray-950">Numi</h3>
+                </div>
+                <p className="font-mono text-2xl font-semibold leading-none text-emerald-600">0/10</p>
+              </div>
+              <p className="mt-3 text-sm leading-5 text-gray-500">
+                Scored the call as below bar because it booked activity, not qualified pipeline. Fleet size, brand
+                context and the decision-maker gap were all left unconverted.
+              </p>
+              <div className="mt-4 border-t border-gray-200 pt-3">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Evidence Numi flagged</p>
+                <ul className="mt-2 space-y-1.5 text-sm leading-5 text-gray-600">
+                  <li>&quot;zehn Fahrzeuge&quot; was captured but not probed for timing, pain or procurement process.</li>
+                  <li>&quot;wir sind bei Skoda&quot; was treated as banter instead of an objection to unpack.</li>
+                  <li>The callback was booked without confirming the chef, objective or success criteria.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 

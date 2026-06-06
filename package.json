@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@elevenlabs/react": "^1.6.4",
     "html2canvas": "^1.4.1",
     "lucide-react": "latest",
     "next": "latest",
