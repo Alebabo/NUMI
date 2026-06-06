@@ -13,12 +13,16 @@ export default function LandingPage() {
           <nav className="flex items-center gap-2">
             <Link
               href="/try"
-              className="inline-flex h-8 items-center justify-center rounded-md px-3 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-950"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-8 items-center justify-center rounded-md border border-gray-200 px-3 text-sm font-medium text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-950"
             >
               Try it Yourself
             </Link>
             <Link
               href="/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-8 items-center justify-center rounded-md bg-gray-950 px-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
             >
               Go to Platform
@@ -44,17 +48,21 @@ export default function LandingPage() {
         {/* Text — left side */}
         <div className="relative z-10 max-w-[52%] lg:max-w-[48%]">
           <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-gray-950 sm:text-6xl lg:text-[76px]">
-            The No.1 Sales Coach<br /> that doesn&apos;t lie.
+            The <span style={{ background: "linear-gradient(90deg, #b8860b, #ffd700, #b8860b)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>No.1</span> Sales Coach<br /> that doesn&apos;t lie.
           </h1>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-11 items-center justify-center rounded-md bg-gray-950 px-5 text-sm font-medium text-white transition-colors hover:bg-gray-800"
             >
               Go to Platform
             </Link>
             <Link
               href="/try"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-11 items-center justify-center rounded-md border border-gray-200 bg-white px-5 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-950"
             >
               Try it Yourself
@@ -85,7 +93,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Why Numi — ehemaliger Subtitle-Text als eigener Abschnitt */}
+      {/* Why Numi */}
       <section className="bg-[#fafafa]">
         <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 lg:py-24">
           <p className="text-xs font-medium uppercase tracking-widest text-gray-400">Why Numi</p>
@@ -127,6 +135,8 @@ export default function LandingPage() {
             <div className="mt-8">
               <Link
                 href="/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex h-10 items-center justify-center rounded-md bg-gray-950 px-5 text-sm font-medium text-white transition-colors hover:bg-gray-800"
               >
                 Go to Platform
@@ -135,6 +145,71 @@ export default function LandingPage() {
           </div>
           <div className="flex justify-center lg:justify-end">
             <SalesRecapShareAsset />
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="border-t border-gray-100 bg-[#fafafa]">
+        <div className="mx-auto w-full max-w-6xl px-5 py-20 sm:px-8 lg:py-24">
+          <p className="text-xs font-medium uppercase tracking-widest text-gray-400">How it works</p>
+          <h2 className="mt-4 text-3xl font-black tracking-tight text-gray-950 sm:text-4xl">
+            Three steps. No fluff.
+          </h2>
+
+          <div className="mt-14 grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-3">
+            {/* Step 1 */}
+            <div className="bg-[#fafafa] p-8">
+              <p className="font-mono text-xs font-medium uppercase tracking-widest text-gray-400">01</p>
+              <h3 className="mt-4 text-lg font-semibold text-gray-950">Upload or record</h3>
+              <p className="mt-3 text-sm leading-7 text-gray-500">
+                Drop an audio file, paste a transcript, or speak directly to the ElevenLabs voice agent. MP3, WAV, TXT, JSON, VTT — all accepted.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"/><path d="M5.5 14.5A6.5 6.5 0 0016.5 8h1A7.5 7.5 0 013 8h1a6.5 6.5 0 001.5 6.5V17H4v1h12v-1h-2.5v-2.5z"/></svg>
+                  ElevenLabs voice
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd"/></svg>
+                  Transcript
+                </span>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-[#fafafa] p-8">
+              <p className="font-mono text-xs font-medium uppercase tracking-widest text-gray-400">02</p>
+              <h3 className="mt-4 text-lg font-semibold text-gray-950">Scored by Qwen</h3>
+              <p className="mt-3 text-sm leading-7 text-gray-500">
+                The Anti-Sycophant Engine runs two passes — a rater and an adversarial critic — powered by Qwen on Alibaba Cloud. No praise layer. Only what the call actually shows.
+              </p>
+              <div className="mt-5">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>
+                  Qwen · Alibaba Cloud
+                </span>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-[#fafafa] p-8">
+              <p className="font-mono text-xs font-medium uppercase tracking-widest text-gray-400">03</p>
+              <h3 className="mt-4 text-lg font-semibold text-gray-950">Get your score</h3>
+              <p className="mt-3 text-sm leading-7 text-gray-500">
+                Findings are anchored to verbatim quotes. You see exactly where price discipline broke, which objections weren&apos;t handled, and where the deal stalled.
+              </p>
+              <div className="mt-5">
+                <Link
+                  href="/try"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-sm font-semibold text-gray-950 transition-colors hover:border-gray-400"
+                >
+                  Try it yourself →
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -148,12 +223,16 @@ export default function LandingPage() {
           <div className="flex shrink-0 gap-3">
             <Link
               href="/try"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300"
             >
               Try it Yourself
             </Link>
             <Link
               href="/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex h-10 items-center justify-center rounded-md bg-gray-950 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-800"
             >
               Go to Platform

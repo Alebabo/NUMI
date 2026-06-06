@@ -154,13 +154,13 @@ export default function SalesRecapShareAsset() {
 
       const allSlides = slides.slice(0, 4);
 
-      function buildSlideEl(s: Slide, w: number, h: number, fontSize: number): HTMLElement {
+      function buildSlideEl(s: Slide, w: number, h: number, fontSize: number, pad: number): HTMLElement {
         const el = document.createElement("div");
         Object.assign(el.style, {
           width: `${w}px`, height: `${h}px`,
           background: s.bg,
           borderRadius: "12px",
-          padding: "20px",
+          padding: `${pad}px`,
           boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
@@ -176,46 +176,46 @@ export default function SalesRecapShareAsset() {
           alignItems: "center",
           background: s.accent,
           borderRadius: "999px",
-          padding: "3px 10px",
-          marginBottom: "10px",
+          padding: `${Math.round(pad * 0.2)}px ${Math.round(pad * 0.55)}px`,
+          marginBottom: `${Math.round(pad * 0.5)}px`,
           width: "fit-content",
         });
-        pill.innerHTML = `<span style="color:#fff;font-size:${Math.round(fontSize * 0.5)}px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">${s.label}</span>`;
+        pill.innerHTML = `<span style="color:#fff;font-size:${Math.round(fontSize * 0.45)}px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">${s.label}</span>`;
 
         const body = document.createElement("div");
 
         if (s.stat) {
           const statEl = document.createElement("p");
-          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 1.9)}px`, fontWeight: "900", lineHeight: "1", margin: "0 0 6px" });
+          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 2.1)}px`, fontWeight: "900", lineHeight: "1", margin: `0 0 ${Math.round(fontSize * 0.2)}px` });
           statEl.textContent = s.stat;
           body.appendChild(statEl);
         }
 
         const headlineEl = document.createElement("p");
-        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${fontSize}px`, fontWeight: "700", lineHeight: "1.2", margin: "0", whiteSpace: "pre-line" });
+        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${fontSize}px`, fontWeight: "800", lineHeight: "1.15", margin: "0", whiteSpace: "pre-line" });
         headlineEl.textContent = s.headline;
         body.appendChild(headlineEl);
 
         if (s.items) {
           const ul = document.createElement("ul");
-          Object.assign(ul.style, { margin: "12px 0 0", padding: "0", listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" });
+          Object.assign(ul.style, { margin: `${Math.round(fontSize * 0.5)}px 0 0`, padding: "0", listStyle: "none", display: "flex", flexDirection: "column", gap: `${Math.round(fontSize * 0.4)}px` });
           s.items.forEach((item) => {
             const li = document.createElement("li");
-            Object.assign(li.style, { display: "flex", alignItems: "flex-start", gap: "8px" });
-            li.innerHTML = `<span style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.7);flex-shrink:0;margin-top:${Math.round(fontSize * 0.25)}px"></span><span style="color:rgba(255,255,255,0.9);font-size:${Math.round(fontSize * 0.75)}px;font-weight:500;line-height:1.4">${item}</span>`;
+            Object.assign(li.style, { display: "flex", alignItems: "flex-start", gap: `${Math.round(fontSize * 0.35)}px` });
+            li.innerHTML = `<span style="width:${Math.round(fontSize * 0.3)}px;height:${Math.round(fontSize * 0.3)}px;border-radius:50%;background:rgba(255,255,255,0.7);flex-shrink:0;margin-top:${Math.round(fontSize * 0.28)}px"></span><span style="color:rgba(255,255,255,0.9);font-size:${Math.round(fontSize * 0.8)}px;font-weight:600;line-height:1.35">${item}</span>`;
             ul.appendChild(li);
           });
           body.appendChild(ul);
         } else {
           const sub = document.createElement("p");
-          Object.assign(sub.style, { color: "rgba(255,255,255,0.65)", fontSize: `${Math.round(fontSize * 0.65)}px`, lineHeight: "1.5", margin: "10px 0 0" });
+          Object.assign(sub.style, { color: "rgba(255,255,255,0.65)", fontSize: `${Math.round(fontSize * 0.6)}px`, lineHeight: "1.5", margin: `${Math.round(fontSize * 0.45)}px 0 0` });
           sub.textContent = s.sub;
           body.appendChild(sub);
         }
 
         const footer = document.createElement("div");
-        Object.assign(footer.style, { display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto", paddingTop: "10px" });
-        footer.innerHTML = `<span style="color:rgba(255,255,255,0.35);font-size:${Math.round(fontSize * 0.55)}px;font-weight:600">numi</span>`;
+        Object.assign(footer.style, { display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto", paddingTop: `${Math.round(pad * 0.3)}px` });
+        footer.innerHTML = `<span style="color:rgba(255,255,255,0.35);font-size:${Math.round(fontSize * 0.45)}px;font-weight:700;letter-spacing:0.05em">numi</span>`;
 
         el.appendChild(pill);
         el.appendChild(body);
@@ -234,13 +234,13 @@ export default function SalesRecapShareAsset() {
         fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif",
       });
 
-      // Big first slide
-      container.appendChild(buildSlideEl(allSlides[0], BIG_W, EXPORT_H, 26));
+      // Big first slide — large font + generous padding
+      container.appendChild(buildSlideEl(allSlides[0], BIG_W, EXPORT_H, 54, 52));
 
-      // 3 small slides stacked
+      // 3 small slides stacked — smaller font, tighter padding
       const stack = document.createElement("div");
       Object.assign(stack.style, { width: `${SMALL_W}px`, display: "flex", flexDirection: "column", gap: `${GAP}px`, flexShrink: "0" });
-      allSlides.slice(1, 4).forEach((s) => stack.appendChild(buildSlideEl(s, SMALL_W, SMALL_H, 13)));
+      allSlides.slice(1, 4).forEach((s) => stack.appendChild(buildSlideEl(s, SMALL_W, SMALL_H, 22, 22)));
       container.appendChild(stack);
 
       document.body.appendChild(container);
