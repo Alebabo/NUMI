@@ -69,8 +69,14 @@ export default function LandingPage() {
             </Link>
           </div>
 
+          {/* HubSpot integration hint */}
+          <div className="mt-8 inline-flex items-center gap-2.5 rounded-full border border-gray-200 bg-white px-3.5 py-2 shadow-sm">
+            <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={18} height={18} className="h-[18px] w-auto object-contain" />
+            <span className="text-[12px] font-medium text-gray-700">Direct HubSpot integration — calls sync automatically</span>
+          </div>
+
           {/* Trusted by — inline in hero */}
-          <div className="mt-12 flex flex-col gap-4">
+          <div className="mt-8 flex flex-col gap-4">
             <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400">Trusted by</p>
             <div className="flex items-center gap-8">
               <Image
@@ -169,6 +175,10 @@ export default function LandingPage() {
                 <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
                   <Image src="/assets/logo-elevenlabs.png" alt="ElevenLabs" width={16} height={16} className="h-4 w-4 object-contain" />
                   <span className="text-[11px] font-medium text-gray-500">ElevenLabs voice</span>
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5">
+                  <Image src="/assets/logo-hubspot.webp" alt="HubSpot" width={16} height={16} className="h-4 w-4 object-contain" />
+                  <span className="text-[11px] font-medium text-gray-500">HubSpot auto-sync</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[11px] font-medium text-gray-500">
                   <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3 text-gray-400"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd"/></svg>
