@@ -138,18 +138,127 @@ export default function SalesRecapShareAsset() {
   function next() { setIndex((i) => (i + 1) % total); }
 
   async function exportPng() {
-    if (!slideRef.current || exporting) return;
+    if (exporting) return;
     setExporting(true);
+
     try {
-      const el = slideRef.current;
-      const w = el.getBoundingClientRect().width;
-      const canvas = await html2canvas(el, {
-        scale: 1200 / w,
+      await document.fonts?.ready;
+
+      // Build LinkedIn carousel layout off-screen with pure inline styles
+      const EXPORT_W = 1400;
+      const EXPORT_H = Math.round(EXPORT_W * (9 / 16));
+      const GAP = 8;
+      const BIG_W = Math.round(EXPORT_W * 0.63) - GAP;
+      const SMALL_W = EXPORT_W - BIG_W - GAP;
+      const SMALL_H = Math.round((EXPORT_H - GAP * 2) / 3);
+
+      const allSlides = slides.slice(0, 4);
+
+      function buildSlideEl(s: Slide, w: number, h: number, fontSize: number): HTMLElement {
+        const el = document.createElement("div");
+        Object.assign(el.style, {
+          width: `${w}px`, height: `${h}px`,
+          background: s.bg,
+          borderRadius: "12px",
+          padding: "20px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          overflow: "hidden",
+          flexShrink: "0",
+        });
+
+        // Label pill
+        const pill = document.createElement("div");
+        Object.assign(pill.style, {
+          display: "inline-flex",
+          alignItems: "center",
+          background: s.accent,
+          borderRadius: "999px",
+          padding: "3px 10px",
+          marginBottom: "10px",
+          width: "fit-content",
+        });
+        pill.innerHTML = `<span style="color:#fff;font-size:${Math.round(fontSize * 0.5)}px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">${s.label}</span>`;
+
+        const body = document.createElement("div");
+
+        if (s.stat) {
+          const statEl = document.createElement("p");
+          Object.assign(statEl.style, { color: "#fff", fontSize: `${Math.round(fontSize * 1.9)}px`, fontWeight: "900", lineHeight: "1", margin: "0 0 6px" });
+          statEl.textContent = s.stat;
+          body.appendChild(statEl);
+        }
+
+        const headlineEl = document.createElement("p");
+        Object.assign(headlineEl.style, { color: "#fff", fontSize: `${fontSize}px`, fontWeight: "700", lineHeight: "1.2", margin: "0", whiteSpace: "pre-line" });
+        headlineEl.textContent = s.headline;
+        body.appendChild(headlineEl);
+
+        if (s.items) {
+          const ul = document.createElement("ul");
+          Object.assign(ul.style, { margin: "12px 0 0", padding: "0", listStyle: "none", display: "flex", flexDirection: "column", gap: "8px" });
+          s.items.forEach((item) => {
+            const li = document.createElement("li");
+            Object.assign(li.style, { display: "flex", alignItems: "flex-start", gap: "8px" });
+            li.innerHTML = `<span style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.7);flex-shrink:0;margin-top:${Math.round(fontSize * 0.25)}px"></span><span style="color:rgba(255,255,255,0.9);font-size:${Math.round(fontSize * 0.75)}px;font-weight:500;line-height:1.4">${item}</span>`;
+            ul.appendChild(li);
+          });
+          body.appendChild(ul);
+        } else {
+          const sub = document.createElement("p");
+          Object.assign(sub.style, { color: "rgba(255,255,255,0.65)", fontSize: `${Math.round(fontSize * 0.65)}px`, lineHeight: "1.5", margin: "10px 0 0" });
+          sub.textContent = s.sub;
+          body.appendChild(sub);
+        }
+
+        const footer = document.createElement("div");
+        Object.assign(footer.style, { display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto", paddingTop: "10px" });
+        footer.innerHTML = `<span style="color:rgba(255,255,255,0.35);font-size:${Math.round(fontSize * 0.55)}px;font-weight:600">numi</span>`;
+
+        el.appendChild(pill);
+        el.appendChild(body);
+        el.appendChild(footer);
+        return el;
+      }
+
+      const container = document.createElement("div");
+      Object.assign(container.style, {
+        position: "fixed", top: "-9999px", left: "-9999px",
+        width: `${EXPORT_W}px`, height: `${EXPORT_H}px`,
+        display: "flex", gap: `${GAP}px`,
+        background: "#111111",
+        borderRadius: "16px",
+        overflow: "hidden",
+        fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif",
+      });
+
+      // Big first slide
+      container.appendChild(buildSlideEl(allSlides[0], BIG_W, EXPORT_H, 26));
+
+      // 3 small slides stacked
+      const stack = document.createElement("div");
+      Object.assign(stack.style, { width: `${SMALL_W}px`, display: "flex", flexDirection: "column", gap: `${GAP}px`, flexShrink: "0" });
+      allSlides.slice(1, 4).forEach((s) => stack.appendChild(buildSlideEl(s, SMALL_W, SMALL_H, 13)));
+      container.appendChild(stack);
+
+      document.body.appendChild(container);
+
+      const canvas = await html2canvas(container, {
+        backgroundColor: "#111111",
+        scale: 1,
+        width: EXPORT_W,
+        height: EXPORT_H,
         useCORS: true,
+        removeContainer: false,
         logging: false,
       });
+
+      document.body.removeChild(container);
+
       const link = document.createElement("a");
-      link.download = `numi-recap-${mode}-${slide.id}.png`;
+      link.download = `numi-recap-${mode}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } finally {
